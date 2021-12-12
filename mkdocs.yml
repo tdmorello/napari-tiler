@@ -1,0 +1,11 @@
+site_name: napari-tiler
+site_description: N-dimensional tiling and merging support for napari
+site_author: Tim Morello
+
+theme: readthedocs
+
+
+repo_url: https://github.com/tdmorello/napari-tiler
+
+pages:
+- Home: index.md
