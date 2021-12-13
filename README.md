@@ -9,6 +9,9 @@
 
 N-dimensional tiling and merging support for napari
 
+This plugin allows the user to split an image into a stack of tiles and subsequently merge the tiles to reconstruct the orignal image.
+See [Tiler](https://github.com/the-lay/tiler) for more details.
+
 ----------------------------------
 
 This [napari] plugin was generated with [Cookiecutter] using [@napari]'s [cookiecutter-napari-plugin] template.
@@ -20,19 +23,29 @@ https://github.com/napari/cookiecutter-napari-plugin#getting-started
 and review the napari docs for plugin developers:
 https://napari.org/plugins/stable/index.html
 -->
-
 ## Installation
 
-You can install `napari-tiler` via [pip]:
+### Option 1 (recommended):
+
+You can install `napari-tiler` from the napari plugin manager. Go to "Plugins" --> "Install/Uninstall Package(s)", then search for `napari-tiler`. Click the "Install" button.
+
+### Option 2:
+
+You can also install `napari-tiler` via [pip]:
 
     pip install napari-tiler
 
-
-
-To install latest development version :
+To install latest development version:
 
     pip install git+https://github.com/tdmorello/napari-tiler.git
 
+## Quick Start
+
+1. Open a file in napari. The file may have any number of dimensions (e.g. z-stack, time series, ...)
+2. Start the plugin ("Plugins" --> "napari-tiler: make_tiles" )
+3. Select the input layer from the dropdown box
+4. Select parameters for tiling
+5. Click "Run"
 
 ## Contributing
 
