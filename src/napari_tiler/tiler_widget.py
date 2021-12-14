@@ -26,6 +26,7 @@ from tiler import Tiler
 if TYPE_CHECKING:
     import napari
 
+# TODO add logging
 
 # FIXME register dock widget to tool menu
 # @register_dock_widget(menu="Utilities > Tiler")
@@ -141,7 +142,6 @@ class TilerWidget(QWidget):
         return metadata
 
     def _run(self):
-        print("running tiler")
         # TODO copy over other image data like transform, colormap, ...
         metadata = self._initialize_tiler()
         tiler = self._tiler
