@@ -6,14 +6,37 @@ from enum import Enum
 from magicgui import magic_factory
 from napari.layers import Image
 from napari_plugin_engine import napari_hook_implementation
-from qtpy.QtWidgets import QWidget
+from napari_tools_menu import register_dock_widget
+from qtpy.QtWidgets import (
+    QComboBox,
+    QFormLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
+)
 from tiler import Merger, Tiler
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import napari
+
 ##### CLASS IMPLEMENTATION #####
-
-
+# @register_dock_widget(menu="Utilities > Merger")
 class MergerWidget(QWidget):
-    pass
+    def __init__(self, viewer: "napari.viewer.Viewer"):
+        super().__init__()
+
+        self.viewer = viewer
+
+        self.setLayout(QVBoxLayout())
+
+        # add title
+        title = QLabel("<b>Merge Tiles</b>")
+        self.layout().addWidget(title)
 
 
 ##### FUNCTION IMPLEMENTATION #####
@@ -63,9 +86,3 @@ def merge_tiles(
     image_layer = Image(merged_image, rgb=is_rgb, metadata=metadata)
 
     return image_layer
-
-
-@napari_hook_implementation(specname="napari_experimental_provide_dock_widget")
-def provide_merger_widget():
-    # you can return either a single widget, or a sequence of widgets
-    return [merge_tiles]
