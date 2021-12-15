@@ -18,24 +18,26 @@ def test_something_with_viewer(widget_name, make_napari_viewer, napari_plugin_ma
     assert len(viewer.window._dock_widgets) == num_dw + 1
 
 
-# def test_tiler_widget_2d(make_napari_viewer, napari_plugin_manager):
-#     napari_plugin_manager.register(napari_tiler, name=MY_PLUGIN_NAME)
-#     viewer = make_napari_viewer()
-#     viewer.window.add_plugin_dock_widget(
-#         plugin_name=MY_PLUGIN_NAME, widget_name="make_tiles"
-#     )
-#     # 2D example
-#     image = viewer.open_sample("scikit-image", "cell")
+@pytest.mark.parametrize("image_name", ["cells3d", "astronaut"])
+def test_tiler_widget_3d(image_name, make_napari_viewer, napari_plugin_manager):
+    napari_plugin_manager.register(napari_tiler, name=MY_PLUGIN_NAME)
+    viewer = make_napari_viewer()
+    _, widget = viewer.window.add_plugin_dock_widget(
+        plugin_name=MY_PLUGIN_NAME, widget_name="Tiler Widget"
+    )
+    viewer.open_sample("scikit-image", image_name)
+    num_layers = len(viewer.layers)
+    widget._run()
+    assert len(viewer.layers) == num_layers + 1
 
 
-# def test_tiler_widget_3d(make_napari_viewer, napari_plugin_manager):
+# def test_generate_preview(make_napari_viewer, napari_plugin_manager):
 #     napari_plugin_manager.register(napari_tiler, name=MY_PLUGIN_NAME)
 #     viewer = make_napari_viewer()
-#     viewer.window.add_plugin_dock_widget(
-#         plugin_name=MY_PLUGIN_NAME, widget_name="make_tiles"
-#     )
-#     # 3D example
-#     images = viewer.open_sample("scikit-image", "cells3d")
+#     widget = viewer.window.add_plugin_dock_widget(
+#         plugin_name=MY_PLUGIN_NAME, widget_name="Tiler Widget"
+#     )[-1]
+#     image = viewer.open_sample("scikit-image", "astronaut")
 
 
 # def test_tiler_widget_rgb(make_napari_viewer, napari_plugin_manager):
@@ -45,7 +47,6 @@ def test_something_with_viewer(widget_name, make_napari_viewer, napari_plugin_ma
 #         plugin_name=MY_PLUGIN_NAME, widget_name="make_tiles"
 #     )
 #     # RGB example
-#     image = viewer.open_sample("scikit-image", "astronaut")
 
 
 # def test_merger_widget():

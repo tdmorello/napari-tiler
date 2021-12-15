@@ -24,7 +24,7 @@ from qtpy.QtWidgets import (
 from tiler import Tiler
 
 if TYPE_CHECKING:
-    import napari
+    import napari  # pragma: no cover
 
 # TODO add logging
 
@@ -67,7 +67,7 @@ class TilerWidget(QWidget):
         # overlap input
         self.overlap_dsb = QDoubleSpinBox()
         self.overlap_dsb.setValue(0.1)
-        self.overlap_dsb.valueChanged.connect(self._validate_overlap)
+        self.overlap_dsb.valueChanged.connect(self._validate_overlap_value)
         self.overlap_dsb.valueChanged.connect(self._parameters_changed)
 
         # mode selection
@@ -158,7 +158,7 @@ class TilerWidget(QWidget):
             tiles_stack, name=f"{image.name} tiles", rgb=is_rgb, metadata=metadata
         )
 
-    def _validate_overlap(self):
+    def _validate_overlap_value(self):
         value = self.overlap_dsb.value()
         if value >= 1:
             self.overlap_dsb.setValue(int(value))
