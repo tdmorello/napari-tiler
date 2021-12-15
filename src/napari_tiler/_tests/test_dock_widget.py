@@ -32,6 +32,7 @@ def test_tiler_widget(image_name, make_napari_viewer, napari_plugin_manager):
     assert len(viewer.layers) == num_layers + 1
 
 
+# TODO migrate this test functino with the above?
 def test_generate_preview(make_napari_viewer, napari_plugin_manager):
     napari_plugin_manager.register(napari_tiler, name=MY_PLUGIN_NAME)
     viewer = make_napari_viewer()
