@@ -19,7 +19,7 @@ def test_something_with_viewer(widget_name, make_napari_viewer, napari_plugin_ma
 
 
 @pytest.mark.parametrize("image_name", ["cells3d", "astronaut"])
-def test_tiler_widget_3d(image_name, make_napari_viewer, napari_plugin_manager):
+def test_tiler_widget(image_name, make_napari_viewer, napari_plugin_manager):
     napari_plugin_manager.register(napari_tiler, name=MY_PLUGIN_NAME)
     viewer = make_napari_viewer()
     _, widget = viewer.window.add_plugin_dock_widget(
