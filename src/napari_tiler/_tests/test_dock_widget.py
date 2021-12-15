@@ -1,7 +1,7 @@
-import napari_tiler
-import pytest
 import numpy as np
-from napari.layers import Image
+import pytest
+
+import napari_tiler
 
 # this is your plugin name declared in your napari.plugins entry point
 MY_PLUGIN_NAME = "napari-tiler"
@@ -10,7 +10,9 @@ MY_WIDGET_NAMES = ["Tiler Widget"]
 
 
 @pytest.mark.parametrize("widget_name", MY_WIDGET_NAMES)
-def test_something_with_viewer(widget_name, make_napari_viewer, napari_plugin_manager):
+def test_something_with_viewer(
+    widget_name, make_napari_viewer, napari_plugin_manager
+):
     napari_plugin_manager.register(napari_tiler, name=MY_PLUGIN_NAME)
     viewer = make_napari_viewer()
     num_dw = len(viewer.window._dock_widgets)
@@ -28,7 +30,9 @@ def test_something_with_viewer(widget_name, make_napari_viewer, napari_plugin_ma
         (np.random.random((512, 512, 3)), True),
     ],
 )
-def test_tiler_widget(image_data, rgb, make_napari_viewer, napari_plugin_manager):
+def test_tiler_widget(
+    image_data, rgb, make_napari_viewer, napari_plugin_manager
+):
     napari_plugin_manager.register(napari_tiler, name=MY_PLUGIN_NAME)
     viewer = make_napari_viewer()
     _, widget = viewer.window.add_plugin_dock_widget(
@@ -47,7 +51,7 @@ def test_generate_preview(make_napari_viewer, napari_plugin_manager):
     _, widget = viewer.window.add_plugin_dock_widget(
         plugin_name=MY_PLUGIN_NAME, widget_name="Tiler Widget"
     )
-    image = viewer.add_image(np.random.random((512, 512)))
+    viewer.add_image(np.random.random((512, 512)))
     num_layers = len(viewer.layers)
     widget.preview_chkb.setChecked(True)
     assert len(viewer.layers) == num_layers + 1

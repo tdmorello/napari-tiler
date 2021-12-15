@@ -8,7 +8,6 @@ import numpy as np
 from magicgui.widgets import create_widget
 
 # from napari_tools_menu import register_dock_widget
-from qtpy.QtGui import QDoubleValidator
 from qtpy.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -27,6 +26,7 @@ if TYPE_CHECKING:
     import napari  # pragma: no cover
 
 # TODO add logging
+
 
 # FIXME register dock widget to tool menu
 # @register_dock_widget(menu="Utilities > Tiler")
@@ -155,7 +155,10 @@ class TilerWidget(QWidget):
             tiles_stack[i, ...] = tile
 
         self.viewer.add_image(
-            tiles_stack, name=f"{image.name} tiles", rgb=is_rgb, metadata=metadata
+            tiles_stack,
+            name=f"{image.name} tiles",
+            rgb=is_rgb,
+            metadata=metadata,
         )
 
     def _validate_overlap_value(self):
@@ -172,7 +175,6 @@ class TilerWidget(QWidget):
 
     def _match_tile_shape(self):
         """Output proper tile shape for Tiler class"""
-        pass
 
     def _generate_preview_layer(self):
         """Generate new shapes layer to display tiles preview"""
@@ -198,7 +200,7 @@ class TilerWidget(QWidget):
         )
 
         # FIXME this emits a warning
-        # TypeError: "layers" has allow_mutation set to False and cannot be assigned
+        # TypeError: "layers" has allow_mutation set to False and cannot be assigned  # noqa
 
         # # move preview layer to front
         # layers = self.viewer.layers
@@ -209,7 +211,7 @@ class TilerWidget(QWidget):
         if "tiler preview" in self.viewer.layers:
             self.viewer.layers.remove("tiler preview")
 
-    # thanks to https://github.com/BiAPoL/napari-clusters-plotter/blob/main/napari_clusters_plotter/_measure.py
+    # thanks to https://github.com/BiAPoL/napari-clusters-plotter/blob/main/napari_clusters_plotter/_measure.py  # noqa
     def showEvent(self, event) -> None:
         super().showEvent(event)
         self.reset_choices()
