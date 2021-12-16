@@ -23,13 +23,14 @@ https://github.com/napari/cookiecutter-napari-plugin#getting-started
 and review the napari docs for plugin developers:
 https://napari.org/plugins/stable/index.html
 -->
+
 ## Installation
 
-### Option 1 (recommended):
+### Option 1 (recommended)
 
-You can install `napari-tiler` from the napari plugin manager. Go to "Plugins" --> "Install/Uninstall Package(s)", then search for `napari-tiler`. Click the "Install" button.
+You can install `napari-tiler` from the napari plugin manager. Go to `Plugins -> Install/Uninstall Package(s)`, then search for `napari-tiler`. Click `Install`.
 
-### Option 2:
+### Option 2
 
 You can also install `napari-tiler` via [pip]:
 
@@ -42,10 +43,10 @@ To install latest development version:
 ## Quick Start
 
 1. Open a file in napari. The file may have any number of dimensions (e.g. z-stack, time series, ...)
-2. Start the plugin ("Plugins" --> "napari-tiler: make_tiles" )
+2. Start the plugin ( `Plugins -> napari-tiler: make_tiles` )
 3. Select the input layer from the dropdown box
 4. Select parameters for tiling
-5. Click "Run"
+5. Click `Run`
 
 ## Contributing
 
