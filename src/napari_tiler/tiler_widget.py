@@ -29,29 +29,26 @@ if TYPE_CHECKING:
 
 
 # FIXME register dock widget to tool menu
+# TODO equal widget widths in qformlayout?
+# TODO abstract to a "base" class that defines methods `showEvent` and `reset_choices`  # noqa
 # @register_dock_widget(menu="Utilities > Tiler")
 class TilerWidget(QWidget):
     def __init__(self, viewer: "napari.viewer.Viewer"):
         super().__init__()
 
         self.viewer = viewer
-
         self.setLayout(QVBoxLayout())
-
         # add title
         title = QLabel("<b>Make Tiles</b>")
         self.layout().addWidget(title)
-
         # image selection
         self.image_select = create_widget(
             annotation="napari.layers.Image", label="image_layer"
         )
-
         # tile size input
         tile_size_container = QWidget()
         tile_size_container.setLayout(QHBoxLayout())
         tile_size_container.layout().setContentsMargins(0, 0, 0, 0)
-
         # TODO set maximum based on input image size
         self.tile_size_x_sb = QSpinBox(minimum=0, maximum=10000)
         self.tile_size_y_sb = QSpinBox(minimum=0, maximum=10000)
@@ -59,28 +56,22 @@ class TilerWidget(QWidget):
         self.tile_size_y_sb.setValue(128)
         self.tile_size_x_sb.valueChanged.connect(self._parameters_changed)
         self.tile_size_y_sb.valueChanged.connect(self._parameters_changed)
-
         tile_size_container.layout().addWidget(self.tile_size_x_sb)
         tile_size_container.layout().addWidget(QLabel("×"))
         tile_size_container.layout().addWidget(self.tile_size_y_sb)
-
         # overlap input
         self.overlap_dsb = QDoubleSpinBox()
         self.overlap_dsb.setValue(0.1)
         self.overlap_dsb.valueChanged.connect(self._validate_overlap_value)
         self.overlap_dsb.valueChanged.connect(self._parameters_changed)
-
         # mode selection
         self.mode_select = QComboBox()
         self.mode_select.addItems(Tiler.TILING_MODES)
-
         # `constant` value input
         self.constant_dsb = QDoubleSpinBox()
-
         # `preview` toggle
         self.preview_chkb = QCheckBox()
         self.preview_chkb.stateChanged.connect(self._parameters_changed)
-
         # add form to main layout
         form_layout = QFormLayout()
         form_layout.addRow("Image", self.image_select.native)
@@ -90,13 +81,10 @@ class TilerWidget(QWidget):
         form_layout.addRow("Constant", self.constant_dsb)
         form_layout.addRow("Preview", self.preview_chkb)
         self.layout().addLayout(form_layout)
-
         # `run` button
         self.run_btn = QPushButton("Run")
         self.run_btn.clicked.connect(self._run)
         self.layout().addWidget(self.run_btn)
-
-        # self._initialize_tiler()
 
     def _initialize_tiler(self):
         image = self.image_select.value
@@ -130,6 +118,7 @@ class TilerWidget(QWidget):
             constant_value=constant,
         )
 
+        # TODO change to object property
         metadata = {
             "data_shape": data_shape,
             "tile_shape": tile_shape,
@@ -173,8 +162,9 @@ class TilerWidget(QWidget):
         else:
             self._remove_preview_layer()
 
-    def _match_tile_shape(self):
-        """Output proper tile shape for Tiler class"""
+    # def _match_tile_shape(self):
+    #     """Output proper tile shape for Tiler class"""
+    #     pass
 
     def _generate_preview_layer(self):
         """Generate new shapes layer to display tiles preview"""
@@ -199,9 +189,8 @@ class TilerWidget(QWidget):
             face_color="#ffffff20",
         )
 
-        # FIXME this emits a warning
-        # TypeError: "layers" has allow_mutation set to False and cannot be assigned  # noqa
-
+        # # FIXME this emits a warning
+        # # TypeError: "layers" has allow_mutation set to False and cannot be assigned  # noqa
         # # move preview layer to front
         # layers = self.viewer.layers
         # idx = layers.index(self._preview_layer)

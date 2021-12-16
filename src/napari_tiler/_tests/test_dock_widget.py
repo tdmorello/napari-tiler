@@ -59,5 +59,32 @@ def test_generate_preview(make_napari_viewer, napari_plugin_manager):
     assert len(viewer.layers) == num_layers
 
 
-# def test_merger_widget():
-#     pass
+@pytest.mark.parametrize(
+    "image_data,rgb",
+    [
+        (np.random.random((512, 512)), False),
+        (np.random.random((5, 512, 512)), False),
+        (np.random.random((512, 512, 3)), True),
+    ],
+)
+def test_merger_widget(
+    image_data, rgb, make_napari_viewer, napari_plugin_manager
+):
+    napari_plugin_manager.register(napari_tiler, name=MY_PLUGIN_NAME)
+    viewer = make_napari_viewer()
+    _, tiler_widget = viewer.window.add_plugin_dock_widget(
+        plugin_name=MY_PLUGIN_NAME, widget_name="Tiler Widget"
+    )
+    _, merger_widget = viewer.window.add_plugin_dock_widget(
+        plugin_name=MY_PLUGIN_NAME, widget_name="Merger Widget"
+    )
+    viewer.add_image(image_data, rgb=rgb)
+
+    # test run
+    num_layers = len(viewer.layers)
+    tiler_widget._run()
+
+    merger_widget.image_select.native.setCurrentIndex(1)
+    num_layers = len(viewer.layers)
+    merger_widget._run()
+    assert len(viewer.layers) == num_layers + 1
