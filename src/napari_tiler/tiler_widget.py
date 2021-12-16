@@ -209,9 +209,9 @@ class TilerWidget(QWidget):
         self.image_select.reset_choices(event)
 
 
-if __name__ == "__main__":
-    from napari import Viewer
+# if __name__ == "__main__":
+#     from napari import Viewer
 
-    viewer = Viewer()
-    viewer.open_sample("scikit-image", "cells3d")
-    viewer.window.add_dock_widget(TilerWidget(viewer))
+#     viewer = Viewer()
+#     viewer.open_sample("scikit-image", "cells3d")
+#     viewer.window.add_dock_widget(TilerWidget(viewer))

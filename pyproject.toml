@@ -5,3 +5,6 @@ line-length = 79
 [tool.isort]
 profile = "black"
 line_length = 79
+
+[tool.pytest.ini_options]
+addopts = ["--cov=napari_tiler", "--cov-report=html"]

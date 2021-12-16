@@ -15,7 +15,7 @@ from qtpy.QtWidgets import (
 from tiler import Merger, Tiler
 
 if TYPE_CHECKING:
-    import napari
+    import napari  # pragma: no cover
 
 
 # @register_dock_widget(menu="Utilities > Merger")
@@ -89,12 +89,12 @@ class MergerWidget(QWidget):
         self.image_select.reset_choices(event)
 
 
-if __name__ == "__main__":
-    from napari import Viewer
+# if __name__ == "__main__":
+#     from napari import Viewer
 
-    from napari_tiler.tiler_widget import TilerWidget
+#     from napari_tiler.tiler_widget import TilerWidget
 
-    viewer = Viewer()
-    viewer.open_sample("scikit-image", "cell")
-    viewer.window.add_dock_widget(TilerWidget(viewer))
-    viewer.window.add_dock_widget(MergerWidget(viewer))
+#     viewer = Viewer()
+#     viewer.open_sample("scikit-image", "cell")
+#     viewer.window.add_dock_widget(TilerWidget(viewer))
+#     viewer.window.add_dock_widget(MergerWidget(viewer))

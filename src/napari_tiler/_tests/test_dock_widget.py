@@ -43,6 +43,19 @@ def test_tiler_widget(
     widget._run()
     assert len(viewer.layers) == num_layers + 1
 
+    # test overlap value validation
+    widget.overlap_dsb.setValue(0.5)
+    widget._initialize_tiler()
+    assert widget.overlap_dsb.value() == 0.5
+
+    widget.overlap_dsb.setValue(2)
+    widget._initialize_tiler()
+    assert widget.overlap_dsb.value() == 2
+
+    widget.overlap_dsb.setValue(2.1)
+    widget._initialize_tiler()
+    assert widget.overlap_dsb.value() == 2
+
 
 # TODO migrate this test functino with the above?
 def test_generate_preview(make_napari_viewer, napari_plugin_manager):
@@ -55,6 +68,10 @@ def test_generate_preview(make_napari_viewer, napari_plugin_manager):
     num_layers = len(viewer.layers)
     widget.preview_chkb.setChecked(True)
     assert len(viewer.layers) == num_layers + 1
+
+    widget._generate_preview_layer()
+    assert len(viewer.layers) == num_layers + 1
+
     widget.preview_chkb.setChecked(False)
     assert len(viewer.layers) == num_layers
 
