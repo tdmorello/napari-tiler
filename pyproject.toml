@@ -30,7 +30,7 @@ classifiers = [
 [tool.poetry.dependencies]
 python = ">=3.7,<3.11"
 magicgui = "^0.3.3"
-napari = "^0.4.12"
+napari = {version = "^0.4.12", extras = ["all"]}
 napari-plugin-engine = "^0.2.0"
 numpy = "^1.21.4"
 tiler = "^0.4.1"
