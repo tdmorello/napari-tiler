@@ -1,3 +1,61 @@
+[tool.poetry]
+name = "napari-tiler"
+version = "0.0.1"
+description = "N-dimensional tiling and merging support for napari"
+readme = "README.md"
+license = "LICENCE"
+authors = ["Tim Morello <tdmorello@gmail.com>"]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Framework :: napari",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Software Development :: Testing",
+]
+
+[tool.poetry.urls]
+"Bug Tracker" = "https://github.com/tdmorello/napari-tiler/issues"
+"Documentation" = "https://github.com/tdmorello/napari-tiler#README.md"
+"Source Code" = "https://github.com/tdmorello/napari-tiler"
+"User Support" = "https://github.com/tdmorello/napari-tiler/issues"
+
+[tool.poetry.dependencies]
+python = ">=3.7,<3.11"
+magicgui = "^0.3.3"
+napari = "^0.4.12"
+napari-plugin-engine = "^0.2.0"
+numpy = "^1.21.4"
+tiler = "^0.4.1"
+importlib-metadata = "<4.3"
+
+[tool.poetry.dev-dependencies]
+black = "^21.12b0"
+coverage = "^6.2"
+flake8 = "^4.0.1"
+flake8-annotations = "^2.7.0"
+flake8-black = "^0.2.3"
+flake8-docstrings = "^1.6.0"
+flake8-isort = "^4.1.1"
+mypy = "^0.920"
+pytest = "^6.2.5"
+pytest-cov = "^3.0.0"
+pytest-faulthandler = "^2.0.1"
+pytest-order = "^1.0.0"
+pytest-qt = "^4.0.2"
+pytest-timeout = "^2.0.2"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.black]
 target-version = ['py36', 'py37', 'py38', 'py39', 'py310']
 line-length = 79
