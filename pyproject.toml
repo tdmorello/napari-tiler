@@ -28,17 +28,18 @@ classifiers = [
 "User Support" = "https://github.com/tdmorello/napari-tiler/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.7,<3.11"
+python = ">=3.7,<3.10"
+importlib-metadata = "<4.3"
 magicgui = "^0.3.3"
-napari = {version = "^0.4.12", extras = ["all"]}
 napari-plugin-engine = "^0.2.0"
 numpy = "^1.21.4"
+PySide2 = "^5.15.2"
+QtPy = "^1.11.3"
 tiler = "^0.4.1"
-importlib-metadata = "<4.3"
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
-coverage = "^6.2"
+coverage = {extras = ["toml"], version = "^6.2"}
 flake8 = "^4.0.1"
 flake8-annotations = "^2.7.0"
 flake8-black = "^0.2.3"
@@ -52,8 +53,12 @@ pytest-order = "^1.0.0"
 pytest-qt = "^4.0.2"
 pytest-timeout = "^2.0.2"
 
+# optionals
+# TODO make optional, move to `testing` extras
+napari = {version = "^0.4.12", optional = false}
+
 [tool.poetry.extras]
-testing = ["napari", "pytest-qt", "qtpy", "pyqt5"]
+testing = [""]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

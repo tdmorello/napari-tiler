@@ -86,3 +86,4 @@ venv/
 **/_version.py
 
 poetry.lock
+_requirements*.txt

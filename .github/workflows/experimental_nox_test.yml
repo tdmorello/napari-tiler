@@ -25,10 +25,10 @@ jobs:
         python -m pip install --upgrade pip
         pip install poetry==1.1.6 nox==2021.10.1
 
-    - name: Lint
+    - name: Lint with nox
       run: nox -s lint
 
-    - name: Test
+    - name: Test with nox
       run: nox -s tests
       env:
         PLATFORM: ${{ matrix.platform  }}
