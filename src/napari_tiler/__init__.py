@@ -15,3 +15,6 @@ try:
     __version__ = version(__name__)
 except PackageNotFoundError:  # pragma: no cover
     __version__ = "unknown"
+
+
+from ._dock_widget import napari_experimental_provide_dock_widget  # noqa: F401
