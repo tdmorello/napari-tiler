@@ -46,6 +46,7 @@ coverage.xml
 .hypothesis/
 .napari_cache
 .nox/
+poetry.lock
 
 # Translations
 *.mo
@@ -83,3 +84,5 @@ venv/
 
 # written by setuptools_scm
 **/_version.py
+
+poetry.lock
