@@ -1,7 +1,11 @@
 # Setup for dev environment
-name: napari-dev-39
+name: napari-dev-310
 channels:
   - defaults
   - conda-forge
 dependencies:
-  - python=3.9
+  - python=3.10
+  - pip
+  - pip:
+      - poetry
+      - nox
