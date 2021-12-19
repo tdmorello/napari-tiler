@@ -5,6 +5,8 @@ from typing import Any
 import nox
 from nox.sessions import Session
 
+python_versions = ["3.7", "3.8", "3.9", "3.10"]
+
 
 # https://github.com/cjolowicz/hypermodern-python/blob/master/noxfile.py
 def install_with_constraints(
@@ -36,12 +38,11 @@ def install_with_constraints(
         session.install(f"--requirement={requirements.name}", *args, **kwargs)
 
 
-@nox.session(python=["3.7", "3.8", "3.9", "3.10"])
+@nox.session(python=python_versions)
 def tests(session: Session) -> None:
     """Run the test suite."""
     session.run("poetry", "install", external=True)
     # install_with_constraints(session, "pytest", "pytest-cov", "pytest-qt")
-    session.run("python", "-V")
     session.run("pytest", external=True)
 
 
