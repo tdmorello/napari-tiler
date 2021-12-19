@@ -50,8 +50,12 @@ To install latest development version:
 
 ## Contributing
 
-Contributions are very welcome. Tests can be run with [tox], please ensure
-the coverage at least stays the same before you submit a pull request.
+This project uses [Poetry](https://github.com/python-poetry/poetry) for dependency management.
+To set up the development environment, it is recommended to use:
+
+    conda env create -f environment.yaml
+
+Contributions are very welcome. Tests can be run with [tox], please ensure the coverage at least stays the same before you submit a pull request.
 
 ## License
 
