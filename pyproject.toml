@@ -53,7 +53,7 @@ pytest-faulthandler = "^2.0.1"
 pytest-order = "^1.0.0"
 pytest-qt = "^4.0.2"
 pytest-timeout = "^2.0.2"
-pytest-xvfb = "^2.0.0"  # linux dependency for testing
+pytest-xvfb = { version = "^2.0.0", markers = "sys_platform == 'linux'"}
 
 # TODO make napari optional, move to `testing` extras
 [tool.poetry.extras]
