@@ -42,7 +42,7 @@ jobs:
           pip install poetry nox
       # this runs the platform-specific tests declared in tox.ini
       - name: Test with nox
-        run: nox -s tests --python ${{ matrix.python }}
+        run: nox -s tests --python=${{ matrix.python }}
 
       # - name: Coverage
         # uses: codecov/codecov-action@v2
