@@ -6,6 +6,9 @@
 [![tests](https://github.com/tdmorello/napari-tiler/workflows/tests/badge.svg)](https://github.com/tdmorello/napari-tiler/actions)
 [![codecov](https://codecov.io/gh/tdmorello/napari-tiler/branch/main/graph/badge.svg)](https://codecov.io/gh/tdmorello/napari-tiler)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/napari-tiler)](https://napari-hub.org/plugins/napari-tiler)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/napari-tiler.svg)](https://pypistats.org/packages/napari-tiler)
+[![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/python/black)
+[![Development Status](https://img.shields.io/pypi/status/napari-tiler.svg)](https://github.com/peng-lab/napari-tiler)
 
 N-dimensional tiling and merging support for napari
 
