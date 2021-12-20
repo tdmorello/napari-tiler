@@ -11,8 +11,10 @@ python_versions = ["3.7", "3.8", "3.9", "3.10"]
 def tests(session: Session) -> None:
     """Run the test suite."""
     session.run("poetry", "install", "--no-dev", external=True)
-    # this will hopefully be moved to pyproject in a "testing" extras
-    session.install("napari", "pytest", "pytest-cov", "pytest-qt")
+    # Test requirements will hopefully be moved to pyproject.toml in a
+    # 'testing' extras
+    # session.run("poetry", "install", "--extras='testing", external=True)
+    session.install("napari", "pytest", "pytest-qt")
     if sys.platform == "linux":
         session.install("pytest-xvfb")
     session.run("pytest")
