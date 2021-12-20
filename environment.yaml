@@ -1,11 +1,9 @@
-# Setup for dev environment
+# Virtual dev environment
 name: napari-dev-310
 channels:
   - defaults
-  # - conda-forge
 dependencies:
   - python=3.10
   - pip
   - pip:
       - poetry
-      # - nox
