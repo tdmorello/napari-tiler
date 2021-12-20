@@ -28,6 +28,7 @@ classifiers = [
 "User Support" = "https://github.com/tdmorello/napari-tiler/issues"
 
 [tool.poetry.dependencies]
+# TODO which of these can be removed or moved to dev dependencies?
 python = ">=3.7, <3.11"
 importlib-metadata = "<4.3"
 magicgui = "^0.3.3"
@@ -46,18 +47,26 @@ flake8-black = "^0.2.3"
 flake8-docstrings = "^1.6.0"
 flake8-isort = "^4.1.1"
 mypy = "^0.920"
-napari = {version = "^0.4.12", optional = false}
-pytest = "^6.2.5"
-pytest-cov = "^3.0.0"
-pytest-faulthandler = "^2.0.1"
-pytest-order = "^1.0.0"
-pytest-qt = "^4.0.2"
-pytest-timeout = "^2.0.2"
-pytest-xvfb = { version = "^2.0.0", markers = "sys_platform == 'linux'"}
+# napari = {version = "^0.4.12", optional = false}
+pytest = {version = "^6.2.5", optional = true}
+pytest-cov = {version = "^3.0.0", optional = true}
+pytest-faulthandler = {version = "^2.0.1", optional = true}
+pytest-order = {version = "^1.0.0", optional = true}
+pytest-qt = {version = "^4.0.2", optional = true}
+pytest-timeout = {version = "^2.0.2", optional = true}
+pytest-xvfb = {version = "^2.0.0", markers = "sys_platform == 'linux'"}
 
 # TODO make napari optional, move to `testing` extras
 [tool.poetry.extras]
-testing = [""]
+testing = [
+    "pytest",
+    "pytest-cov",
+    "pytest-faulthandler",
+    "pytest-order",
+    "pytest-qt",
+    "pytest-timeout",
+    "pytest-xvfb",
+]
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
