@@ -2,10 +2,10 @@
 name: napari-dev-310
 channels:
   - defaults
-  - conda-forge
+  # - conda-forge
 dependencies:
   - python=3.10
   - pip
   - pip:
       - poetry
-      - nox
+      # - nox
