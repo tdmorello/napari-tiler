@@ -15,6 +15,8 @@ def tests(session: Session) -> None:
     # 'testing' extras
     # session.run("poetry", "install", "--extras='testing", external=True)
     session.install("napari", "pytest", "pytest-qt")
+    # this will hopefully be moved to pyproject in a "testing" extras
+    session.install("napari", "pytest", "pytest-cov", "pytest-qt")
     if sys.platform == "linux":
         session.install("pytest-xvfb")
     session.run("pytest")
