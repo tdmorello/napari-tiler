@@ -12,15 +12,19 @@ python_versions = ["3.7", "3.8", "3.9", "3.10"]
 def tests(session: Session) -> None:
     """Run the test suite."""
     with tempfile.NamedTemporaryFile() as requirements:
+        if sys.platform == "win32":
+            requirements_path = "requirements.txt"
+        else:
+            requirements_path = requirements.name
         session.run(
             "poetry",
             "export",
             "--without-hashes",
             "-o",
-            requirements.name,
+            requirements_path,
             external=True,
         )
-        session.install("-r", requirements.name)
+        session.install("-r", requirements_path)
 
     session.install("napari[all]", "pytest", "pytest-cov", "pytest-qt")
     if sys.platform == "linux":
