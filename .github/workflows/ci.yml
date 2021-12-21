@@ -1,9 +1,8 @@
 name: CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
-
   test:
     runs-on: ubuntu-latest
     strategy:
@@ -51,7 +50,6 @@ jobs:
   deploy:
     needs: [test]
     runs-on: ubuntu-latest
-  
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.10
@@ -64,12 +62,12 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install poetry
 
-    - name: Build and bump version
+    - name: Bump version and build
       run: |
-          poetry build &&
           poetry version patch &&
           version=$(poetry version | awk '{ print $2 }') &&
-          poetry version $version.dev.$(date +%s)
+          poetry version $version.dev.$(date +%s) &&
+          poetry build
 
     - name: Release on TestPyPI
       uses: pypa/gh-action-pypi-publish@v1.4.2
