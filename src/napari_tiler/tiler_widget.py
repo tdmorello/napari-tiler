@@ -1,6 +1,6 @@
 """This provides the widget to make tiles."""
 
-from typing import Dict, Optional
+from typing import TYPE_CHECKING, Dict, Optional
 
 import numpy as np
 from magicgui.widgets import create_widget
@@ -21,7 +21,7 @@ from qtpy.QtWidgets import (
 )
 from tiler import Tiler
 
-if False:  # TYPE_CHECKING
+if TYPE_CHECKING:  # TYPE_CHECKING
     import napari  # pragma: no cover
 
 # TODO add logging

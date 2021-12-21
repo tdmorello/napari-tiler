@@ -1,3 +1,4 @@
 [flake8]
 ignore=ANN101
 docstring-convention=google
+min_python_version = 3.7
