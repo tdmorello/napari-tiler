@@ -44,5 +44,5 @@ jobs:
       - name: Test with nox
         run: nox -s tests --python=${{ matrix.python-version }}
 
-      # - name: Coverage
-        # uses: codecov/codecov-action@v2
+      - name: Update coverage
+        uses: codecov/codecov-action@v2
