@@ -52,12 +52,12 @@ jobs:
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
-          password: {{ "${{ secrets.PYPI_TOKEN }}" }}
+          password: ${{ secrets.PYPI_TOKEN }}
 
       - name: Publish package on TestPyPI
         if: "! steps.check-version.outputs.tag"
         uses: pypa/gh-action-pypi-publish@v1.4.2
         with:
           user: __token__
-          password: {{ "${{ secrets.TEST_PYPI_TOKEN }}" }}
+          password: ${{ secrets.TEST_PYPI_TOKEN }}
           repository_url: https://test.pypi.org/legacy/
