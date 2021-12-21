@@ -1,11 +1,10 @@
-"""
-This provides the widget to make tiles
-"""
+"""This provides the widget to make tiles."""
 
-from typing import TYPE_CHECKING
+from typing import Dict, Optional
 
 import numpy as np
 from magicgui.widgets import create_widget
+from qtpy.QtCore import QEvent
 
 # from napari_tools_menu import register_dock_widget
 from qtpy.QtWidgets import (
@@ -22,7 +21,7 @@ from qtpy.QtWidgets import (
 )
 from tiler import Tiler
 
-if TYPE_CHECKING:
+if False:  # TYPE_CHECKING
     import napari  # pragma: no cover
 
 # TODO add logging
@@ -33,7 +32,10 @@ if TYPE_CHECKING:
 # TODO abstract to a "base" class that defines methods `showEvent` and `reset_choices`  # noqa
 # @register_dock_widget(menu="Utilities > Tiler")
 class TilerWidget(QWidget):
-    def __init__(self, viewer: "napari.viewer.Viewer"):
+    """The main Tiler widget."""
+
+    def __init__(self, viewer: "napari.viewer.Viewer") -> None:
+        """Init the Tiler widget."""
         super().__init__()
 
         self.viewer = viewer
@@ -86,7 +88,7 @@ class TilerWidget(QWidget):
         self.run_btn.clicked.connect(self._run)
         self.layout().addWidget(self.run_btn)
 
-    def _initialize_tiler(self):
+    def _initialize_tiler(self) -> Dict:
         image = self.image_select.value
         data_shape = image.data.shape
         tile_shape = [self.tile_size_x_sb.value(), self.tile_size_y_sb.value()]
@@ -130,7 +132,7 @@ class TilerWidget(QWidget):
 
         return metadata
 
-    def _run(self):
+    def _run(self) -> None:
         # TODO copy over other image data like transform, colormap, ...
         metadata = self._initialize_tiler()
         tiler = self._tiler
@@ -150,12 +152,12 @@ class TilerWidget(QWidget):
             metadata=metadata,
         )
 
-    def _validate_overlap_value(self):
+    def _validate_overlap_value(self) -> None:
         value = self.overlap_dsb.value()
         if value >= 1:
             self.overlap_dsb.setValue(int(value))
 
-    def _parameters_changed(self):
+    def _parameters_changed(self) -> None:
         # FIXME wait until user has completed input, otherwise this is costly
         if self.preview_chkb.isChecked():
             self._generate_preview_layer()
@@ -166,8 +168,8 @@ class TilerWidget(QWidget):
     #     """Output proper tile shape for Tiler class"""
     #     pass
 
-    def _generate_preview_layer(self):
-        """Generate new shapes layer to display tiles preview"""
+    def _generate_preview_layer(self) -> None:
+        """Generate a shapes layer to display tiles preview."""
         self._initialize_tiler()
         tiles = []
         for tile_id in range(len(self._tiler)):
@@ -196,16 +198,17 @@ class TilerWidget(QWidget):
         # idx = layers.index(self._preview_layer)
         # self.viewer.layers += [layers.pop(idx)]
 
-    def _remove_preview_layer(self):
+    def _remove_preview_layer(self) -> None:
         if "tiler preview" in self.viewer.layers:
             self.viewer.layers.remove("tiler preview")
 
     # thanks to https://github.com/BiAPoL/napari-clusters-plotter/blob/main/napari_clusters_plotter/_measure.py  # noqa
-    def showEvent(self, event) -> None:
+    def showEvent(self, event: QEvent) -> None:  # noqa: D102
         super().showEvent(event)
         self.reset_choices()
 
-    def reset_choices(self, event=None):
+    def reset_choices(self, event: Optional[QEvent] = None) -> None:
+        """Repopulate image list."""
         self.image_select.reset_choices(event)
 
 
