@@ -1,9 +1,10 @@
 """
 This provides the widgets to make or merge tiles
 """
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from magicgui.widgets import create_widget
+from qtpy.QtCore import QEvent
 from qtpy.QtWidgets import (
     QComboBox,
     QFormLayout,
@@ -20,7 +21,10 @@ if TYPE_CHECKING:
 
 # @register_dock_widget(menu="Utilities > Merger")
 class MergerWidget(QWidget):
-    def __init__(self, viewer: "napari.viewer.Viewer"):
+    """A class for the Merger widget."""
+
+    def __init__(self, viewer: "napari.viewer.Viewer") -> None:
+        """Init the merger class."""
         super().__init__()
         # create main layout
         self.viewer = viewer
@@ -45,7 +49,7 @@ class MergerWidget(QWidget):
         self.run_btn.clicked.connect(self._run)
         self.layout().addWidget(self.run_btn)
 
-    def _initialize_merger(self):
+    def _initialize_merger(self) -> None:
         image = self.image_select.value
         metadata = image.metadata
         print(metadata)
@@ -62,7 +66,7 @@ class MergerWidget(QWidget):
             tiler=tiler, window=self.mode_select.currentText()
         )
 
-    def _run(self):
+    def _run(self) -> None:
         # TODO copy over other image data like transform, colormap, ...
         self._initialize_merger()
         merger = self._merger
@@ -78,14 +82,16 @@ class MergerWidget(QWidget):
             name=f"{image.name} merged",
             rgb=is_rgb,
             metadata=metadata,
+            colormap=image.colormap,
         )
 
     # thanks to https://github.com/BiAPoL/napari-clusters-plotter/blob/main/napari_clusters_plotter/_measure.py  # noqa
-    def showEvent(self, event) -> None:
+    def showEvent(self, event: QEvent) -> None:  # noqa: D102
         super().showEvent(event)
         self.reset_choices()
 
-    def reset_choices(self, event=None):
+    def reset_choices(self, event=Optional[QEvent]):
+        """Repopulate image list."""
         self.image_select.reset_choices(event)
 
 

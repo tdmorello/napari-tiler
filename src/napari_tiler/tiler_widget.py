@@ -21,7 +21,7 @@ from qtpy.QtWidgets import (
 )
 from tiler import Tiler
 
-if TYPE_CHECKING:  # TYPE_CHECKING
+if TYPE_CHECKING:
     import napari  # pragma: no cover
 
 # TODO add logging
@@ -150,6 +150,7 @@ class TilerWidget(QWidget):
             name=f"{image.name} tiles",
             rgb=is_rgb,
             metadata=metadata,
+            colormap=image.colormap,
         )
 
     def _validate_overlap_value(self) -> None:
