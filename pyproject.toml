@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "napari-tiler"
-version = "0.0.4"
+version = "0.0.5"
 description = "N-dimensional tiling and merging support for napari"
 readme = "README.md"
 license = "LICENCE"

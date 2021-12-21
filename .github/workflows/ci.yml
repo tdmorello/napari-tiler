@@ -1,4 +1,4 @@
-name: CI
+ame: CI
 
 on: [push]
 
@@ -37,9 +37,9 @@ jobs:
         python -m pip install --upgrade pip
         python -m pip install nox poetry
 
-    - name: Lint with nox
-      run: |
-        nox --sessions=lint --python=${{ matrix.python-version }}
+    # - name: Lint with nox
+    #   run: |
+    #     nox --sessions=lint --python=${{ matrix.python-version }}
 
     - name: Test with nox
       run: |
