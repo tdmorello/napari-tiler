@@ -30,11 +30,10 @@ classifiers = [
 [tool.poetry.dependencies]
 # TODO which of these can be removed or moved to dev dependencies?
 python = ">=3.7, <3.11"
-importlib-metadata = "<4.3"
+importlib-metadata = {version = "<4.3", markers = "python_version < '3.8'"}
 napari-plugin-engine = "^0.2.0"
 numpy = "^1.21.4"
 tiler = "^0.4.1"
-
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
@@ -70,4 +69,4 @@ profile = "black"
 line_length = 79
 
 [tool.pytest.ini_options]
-addopts = ["--cov=napari_tiler", "--cov-report=html"]
+addopts = ["--cov=napari_tiler", "--cov-report=html", "--cov-report=xml"]
