@@ -76,7 +76,7 @@ class MergerWidget(QWidget):
         num_tiles = image.data.shape[0]
         for i in range(num_tiles):
             merger.add(i, image.data[i, ...])
-        merged = merger.merge()
+        merged = merger.merge(dtype=image.dtype)
         self.viewer.add_image(
             merged,
             name=f"{image.name} merged",

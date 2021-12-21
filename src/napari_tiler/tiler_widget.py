@@ -145,6 +145,7 @@ class TilerWidget(QWidget):
         for i, tile in tiler.iterate(image.data):
             tiles_stack[i, ...] = tile
 
+        # TODO include all settable image layer attributes
         self.viewer.add_image(
             tiles_stack,
             name=f"{image.name} tiles",
