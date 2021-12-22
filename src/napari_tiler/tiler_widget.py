@@ -4,9 +4,8 @@ from typing import TYPE_CHECKING, Dict, Optional
 
 import numpy as np
 from magicgui.widgets import create_widget
+from napari_tools_menu import register_dock_widget
 from qtpy.QtCore import QEvent
-
-# from napari_tools_menu import register_dock_widget
 from qtpy.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -24,13 +23,8 @@ from tiler import Tiler
 if TYPE_CHECKING:
     import napari  # pragma: no cover
 
-# TODO add logging
 
-
-# FIXME register dock widget to tool menu
-# TODO equal widget widths in qformlayout?
-# TODO abstract to a "base" class that defines methods `showEvent` and `reset_choices`  # noqa
-# @register_dock_widget(menu="Utilities > Tiler")
+@register_dock_widget(menu="Utilities > Tiler")
 class TilerWidget(QWidget):
     """The main Tiler widget."""
 
@@ -52,8 +46,8 @@ class TilerWidget(QWidget):
         tile_size_container.setLayout(QHBoxLayout())
         tile_size_container.layout().setContentsMargins(0, 0, 0, 0)
         # TODO set maximum based on input image size
-        self.tile_size_x_sb = QSpinBox(minimum=0, maximum=10000)
-        self.tile_size_y_sb = QSpinBox(minimum=0, maximum=10000)
+        self.tile_size_x_sb = QSpinBox(minimum=0, maximum=100000)
+        self.tile_size_y_sb = QSpinBox(minimum=0, maximum=100000)
         self.tile_size_x_sb.setValue(128)
         self.tile_size_y_sb.setValue(128)
         self.tile_size_x_sb.valueChanged.connect(self._parameters_changed)
@@ -121,7 +115,7 @@ class TilerWidget(QWidget):
             constant_value=constant,
         )
 
-        # TODO change to object property
+        # TODO copy over other image data like transform, colormap, ...
         metadata = {
             "data_shape": data_shape,
             "tile_shape": tile_shape,
@@ -134,7 +128,6 @@ class TilerWidget(QWidget):
         return metadata
 
     def _run(self) -> None:
-        # TODO copy over other image data like transform, colormap, ...
         metadata = self._initialize_tiler()
         tiler = self._tiler
         image = self.image_select.value
@@ -146,7 +139,6 @@ class TilerWidget(QWidget):
         for i, tile in tiler.iterate(image.data):
             tiles_stack[i, ...] = tile
 
-        # TODO include all settable image layer attributes
         self.viewer.add_image(
             tiles_stack,
             name=f"{image.name} tiles",
@@ -163,17 +155,17 @@ class TilerWidget(QWidget):
     def _parameters_changed(self) -> None:
         # FIXME wait until user has completed input, otherwise this is costly
         if self.preview_chkb.isChecked():
-            self._generate_preview_layer()
+            self._update_preview_layer()
         else:
             self._remove_preview_layer()
 
-    # def _match_tile_shape(self):
-    #     """Output proper tile shape for Tiler class"""
-    #     pass
-
-    def _generate_preview_layer(self) -> None:
+    def _update_preview_layer(self) -> None:
         """Generate a shapes layer to display tiles preview."""
-        self._initialize_tiler()
+        try:
+            self._initialize_tiler()
+        except AttributeError:
+            return
+
         tiles = []
         for tile_id in range(len(self._tiler)):
             bbox = np.array(self._tiler.get_tile_bbox_position(tile_id))
@@ -194,12 +186,10 @@ class TilerWidget(QWidget):
             face_color="#ffffff20",
         )
 
-        # # FIXME this emits a warning
-        # # TypeError: "layers" has allow_mutation set to False and cannot be assigned  # noqa
-        # # move preview layer to front
-        # layers = self.viewer.layers
-        # idx = layers.index(self._preview_layer)
-        # self.viewer.layers += [layers.pop(idx)]
+        # move preview layer to front
+        layers = self.viewer.layers
+        idx = layers.index(self._preview_layer)
+        layers.move_selected(idx, -1)
 
     def _remove_preview_layer(self) -> None:
         if "tiler preview" in self.viewer.layers:
@@ -215,9 +205,9 @@ class TilerWidget(QWidget):
         self.image_select.reset_choices(event)
 
 
-if __name__ == "__main__":
-    from napari import Viewer
+# if __name__ == "__main__":
+#     from napari import Viewer
 
-    viewer = Viewer()
-    viewer.open_sample("scikit-image", "cells3d")
-    widget = viewer.window.add_dock_widget(TilerWidget(viewer))
+#     viewer = Viewer()
+#     viewer.open_sample("scikit-image", "cells3d")
+#     widget = viewer.window.add_dock_widget(TilerWidget(viewer))

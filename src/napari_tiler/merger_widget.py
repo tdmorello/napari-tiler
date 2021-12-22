@@ -1,9 +1,8 @@
-"""
-This provides the widgets to make or merge tiles
-"""
+"""This provides the widgets to make or merge tiles."""
 from typing import TYPE_CHECKING, Optional
 
 from magicgui.widgets import create_widget
+from napari_tools_menu import register_dock_widget
 from qtpy.QtCore import QEvent
 from qtpy.QtWidgets import (
     QComboBox,
@@ -19,7 +18,7 @@ if TYPE_CHECKING:
     import napari  # pragma: no cover
 
 
-# @register_dock_widget(menu="Utilities > Merger")
+@register_dock_widget(menu="Utilities > Merger")
 class MergerWidget(QWidget):
     """A class for the Merger widget."""
 
@@ -91,7 +90,7 @@ class MergerWidget(QWidget):
         super().showEvent(event)
         self.reset_choices()
 
-    def reset_choices(self, event=Optional[QEvent]):
+    def reset_choices(self, event: Optional[QEvent] = None) -> None:
         """Repopulate image list."""
         self.image_select.reset_choices(event)
 

@@ -69,7 +69,7 @@ def test_generate_preview(make_napari_viewer, napari_plugin_manager):
     widget.preview_chkb.setChecked(True)
     assert len(viewer.layers) == num_layers + 1
 
-    widget._generate_preview_layer()
+    widget._update_preview_layer()
     assert len(viewer.layers) == num_layers + 1
 
     widget.preview_chkb.setChecked(False)
