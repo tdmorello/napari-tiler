@@ -1,3 +1,4 @@
+
 name: Upload to PyPI
 
 on:
@@ -6,9 +7,11 @@ on:
       - main
     tags:
       - "v*"
+    workflow_dispatch:
+
 jobs:
   release:
-    name: Release
+
     runs-on: ubuntu-latest
     if: contains(github.ref, 'tags')
 
@@ -19,6 +22,7 @@ jobs:
         with:
           python-version: "3.10"
       - name: Install dependencies
+        run: |
           pip install --upgrade pip
           pip install poetry
       - name: Build package
