@@ -13,13 +13,15 @@ jobs:
     if: contains(github.ref, 'tags')
 
     steps:
-      - uses: actions/checkout@v2.4.0
+      - name: Set up repo
+        uses: actions/checkout@v2.4.0
       - name: Set up Python
         uses: actions/setup-python@v2.3.1
         with:
           python-version: "3.10"
       - name: Install dependencies
-          pip install --upgrade pip
+        run: |
+          pip install --upgrade pip &&
           pip install poetry
       - name: Build package
         run: poetry build
