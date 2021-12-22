@@ -41,6 +41,7 @@ class MergerWidget(QWidget):
         self.mode_select.addItems(Merger.SUPPORTED_WINDOWS)
         # add form to main layout
         form_layout = QFormLayout()
+        form_layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         form_layout.addRow("Image", self.image_select.native)
         form_layout.addRow("Mode", self.mode_select)
         self.layout().addLayout(form_layout)

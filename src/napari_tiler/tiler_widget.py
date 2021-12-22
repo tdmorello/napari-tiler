@@ -76,6 +76,7 @@ class TilerWidget(QWidget):
         self.preview_chkb.stateChanged.connect(self._parameters_changed)
         # add form to main layout
         form_layout = QFormLayout()
+        form_layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         form_layout.addRow("Image", self.image_select.native)
         form_layout.addRow("Tile Size", tile_size_container)
         form_layout.addRow("Overlap", self.overlap_dsb)
@@ -214,9 +215,9 @@ class TilerWidget(QWidget):
         self.image_select.reset_choices(event)
 
 
-# if __name__ == "__main__":
-#     from napari import Viewer
+if __name__ == "__main__":
+    from napari import Viewer
 
-#     viewer = Viewer()
-#     viewer.open_sample("scikit-image", "cells3d")
-#     viewer.window.add_dock_widget(TilerWidget(viewer))
+    viewer = Viewer()
+    viewer.open_sample("scikit-image", "cells3d")
+    widget = viewer.window.add_dock_widget(TilerWidget(viewer))
