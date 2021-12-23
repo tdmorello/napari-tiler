@@ -40,7 +40,7 @@ napari-tools-menu = "^0.1.7"
 black = "^21.12b0"
 coverage = {version = "^6.2", extras = ["toml"]}
 flake8 = "^4.0.1"
-flake8-annotations = "^2.7.0"
+# flake8-annotations = "^2.7.0"
 flake8-black = "^0.2.3"
 flake8-docstrings = "^1.6.0"
 flake8-isort = "^4.1.1"
@@ -72,3 +72,6 @@ line_length = 79
 
 [tool.pytest.ini_options]
 addopts = ["--cov=napari_tiler", "--cov-report=html", "--cov-report=xml"]
+
+[tool.mypi]
+exclude = ["_tests"]
