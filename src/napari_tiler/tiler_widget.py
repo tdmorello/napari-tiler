@@ -72,7 +72,7 @@ class TilerWidget(QWidget):
         self.mode_select.currentIndexChanged.connect(self._on_mode_changed)
 
         # `constant` value input
-        self.constant_dsb = QDoubleSpinBox()
+        self.constant_dsb = QDoubleSpinBox(minimum=0, maximum=255)
         self.constant_lbl = QLabel("Constant")
 
         # `preview` toggle
@@ -194,7 +194,6 @@ class TilerWidget(QWidget):
 
     def _update_preview_layer(self) -> None:
         """Generate a shapes layer to display tiles preview."""
-        print("updating preview layer")
         tiles = []
         for tile_id in range(len(self._tiler)):
             bbox = np.array(self._tiler.get_tile_bbox_position(tile_id))
@@ -273,7 +272,6 @@ class DimensionField(QWidget):
 class XYDimensionField(DimensionField):
     """Dimension input for X and Y sizes."""
 
-    # REFACTOR probably a better way to signal than propagation?
     valueChanged = Signal()
 
     def __init__(self) -> None:
@@ -295,12 +293,15 @@ class XYDimensionField(DimensionField):
 class ExtraDimensionField(DimensionField):
     """Dimension input for an extra dimension (e.g. Z, T, ...)."""
 
+    valueChanged = Signal()
+
     def __init__(self) -> None:
         """Init ExtraDimensionField class."""
         super().__init__()
 
         self._dim_sb = QSpinBox(minimum=0, maximum=10000)
         self._dim_sb.setValue(DEFAULTS.extra_dim_size)
+        self._dim_sb.valueChanged.connect(self.valueChanged)
 
         layout = self.layout()
         layout.addWidget(QLabel("×"))
@@ -336,10 +337,10 @@ class TileDimensions(QWidget):
         return np.array(dims).flatten()
 
 
-# if __name__ == "__main__":
-#     from napari import Viewer
+if __name__ == "__main__":
+    from napari import Viewer
 
-#     viewer = Viewer()
-#     viewer.open_sample("scikit-image", "cells3d")
-#     tiler_widget = TilerWidget(viewer)
-#     viewer.window.add_dock_widget(tiler_widget)
+    viewer = Viewer()
+    viewer.open_sample("scikit-image", "cells3d")
+    tiler_widget = TilerWidget(viewer)
+    viewer.window.add_dock_widget(tiler_widget)
