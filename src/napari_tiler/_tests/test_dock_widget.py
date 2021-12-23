@@ -38,6 +38,11 @@ def test_tiler_widget(
     _, widget = viewer.window.add_plugin_dock_widget(
         plugin_name=MY_PLUGIN_NAME, widget_name="Tiler Widget"
     )
+
+    # test no image open
+    with pytest.raises(ValueError):
+        widget._run()
+
     viewer.add_image(image_data, rgb=rgb)
     num_layers = len(viewer.layers)
     widget._run()
@@ -55,6 +60,27 @@ def test_tiler_widget(
     widget.overlap_dsb.setValue(2.1)
     widget._initialize_tiler()
     assert widget.overlap_dsb.value() == 2
+
+    # test mode changed
+    widget.mode_select.setCurrentIndex(1)
+    assert not widget.constant_dsb.isVisible()
+    assert not widget.constant_lbl.isVisible()
+
+    # test adding and removing extra dimensions
+    dims_layout = widget.tile_dims_container.layout()
+    cnt = dims_layout.count()
+    dims_layout.itemAt(0).widget()._add_below()
+    assert dims_layout.count() == cnt + 1
+    dims_layout.itemAt(1).widget()._remove()
+    assert dims_layout.count() == cnt
+
+    # test raises value error when tile dims > image dims
+    # widget.
+    with pytest.raises(ValueError):
+        dims_layout = widget.tile_dims_container.layout()
+        dims_layout.itemAt(0).widget()._add_below()
+        dims_layout.itemAt(0).widget()._add_below()
+        widget._run()
 
 
 # TODO migrate this test functino with the above?

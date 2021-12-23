@@ -54,6 +54,7 @@ pytest-order = "^1.0.0"
 pytest-qt = "^4.0.2"
 pytest-timeout = "^2.0.2"
 pytest-xvfb = {version = "^2.0.0", markers = "sys_platform == 'linux'"}
+rope = "^0.22.0"
 
 [tool.poetry.extras]
 

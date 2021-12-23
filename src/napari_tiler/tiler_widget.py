@@ -1,11 +1,12 @@
 """This provides the widget to make tiles."""
 
+import logging
 from typing import TYPE_CHECKING, Dict, Optional
 
 import numpy as np
 from magicgui.widgets import create_widget
 from napari_tools_menu import register_dock_widget
-from qtpy.QtCore import QEvent
+from qtpy.QtCore import QEvent, Signal
 from qtpy.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -24,6 +25,17 @@ if TYPE_CHECKING:
     import napari  # pragma: no cover
 
 
+logger = logging.getLogger(__name__)
+
+
+class DEFAULTS:
+    """Default parameters for gui."""
+
+    tile_size = 128
+    extra_dim_size = 5
+    overlap = 0.1
+
+
 @register_dock_widget(menu="Utilities > Tiler")
 class TilerWidget(QWidget):
     """The main Tiler widget."""
@@ -34,48 +46,48 @@ class TilerWidget(QWidget):
 
         self.viewer = viewer
         self.setLayout(QVBoxLayout())
+
         # add title
         title = QLabel("<b>Make Tiles</b>")
         self.layout().addWidget(title)
+
         # image selection
         self.image_select = create_widget(
             annotation="napari.layers.Image", label="image_layer"
         )
-        # tile size input
-        tile_size_container = QWidget()
-        tile_size_container.setLayout(QHBoxLayout())
-        tile_size_container.layout().setContentsMargins(0, 0, 0, 0)
-        # TODO set maximum based on input image size
-        self.tile_size_x_sb = QSpinBox(minimum=0, maximum=100000)
-        self.tile_size_y_sb = QSpinBox(minimum=0, maximum=100000)
-        self.tile_size_x_sb.setValue(128)
-        self.tile_size_y_sb.setValue(128)
-        self.tile_size_x_sb.valueChanged.connect(self._parameters_changed)
-        self.tile_size_y_sb.valueChanged.connect(self._parameters_changed)
-        tile_size_container.layout().addWidget(self.tile_size_x_sb)
-        tile_size_container.layout().addWidget(QLabel("×"))
-        tile_size_container.layout().addWidget(self.tile_size_y_sb)
+
+        # tile dimensions input
+        self.tile_dims_container = TileDimensions()
+        self.tile_dims_container.valueChanged.connect(self._parameters_changed)
+
         # overlap input
         self.overlap_dsb = QDoubleSpinBox()
-        self.overlap_dsb.setValue(0.1)
+        self.overlap_dsb.setValue(DEFAULTS.overlap)
         self.overlap_dsb.valueChanged.connect(self._validate_overlap_value)
         self.overlap_dsb.valueChanged.connect(self._parameters_changed)
+
         # mode selection
         self.mode_select = QComboBox()
         self.mode_select.addItems(Tiler.TILING_MODES)
+        self.mode_select.currentIndexChanged.connect(self._on_mode_changed)
+
         # `constant` value input
         self.constant_dsb = QDoubleSpinBox()
+        self.constant_lbl = QLabel("Constant")
+
         # `preview` toggle
         self.preview_chkb = QCheckBox()
         self.preview_chkb.stateChanged.connect(self._parameters_changed)
+
         # add form to main layout
         form_layout = QFormLayout()
         form_layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
         form_layout.addRow("Image", self.image_select.native)
-        form_layout.addRow("Tile Size", tile_size_container)
+        form_layout.addRow("Tile Size", self.tile_dims_container)
         form_layout.addRow("Overlap", self.overlap_dsb)
         form_layout.addRow("Mode", self.mode_select)
-        form_layout.addRow("Constant", self.constant_dsb)
+        form_layout.addRow(self.constant_lbl, self.constant_dsb)
+        # form_layout.addRow(self.constant_dsb_container)
         form_layout.addRow("Preview", self.preview_chkb)
         self.layout().addLayout(form_layout)
         # `run` button
@@ -83,40 +95,58 @@ class TilerWidget(QWidget):
         self.run_btn.clicked.connect(self._run)
         self.layout().addWidget(self.run_btn)
 
+        # initial show or hide constant input spinbox
+        self._on_mode_changed()
+        self._parameters_changed()
+
+    def _on_mode_changed(self) -> None:
+        if self.mode_select.currentText() == "constant":
+            self.constant_dsb.show()
+            self.constant_lbl.show()
+        else:
+            self.constant_dsb.hide()
+            self.constant_lbl.hide()
+
+    @property
+    def tile_shape(self) -> np.ndarray:
+        """Returns tile dimensions reordered to fit napari convention."""
+        shape = self.tile_dims_container.get_dims()
+        # Move X and Y dimensions to the end, keep the rest in order
+        return np.concatenate([shape[2:], shape[[0, 1]]])
+
     def _initialize_tiler(self) -> Dict:
-        image = self.image_select.value
-        data_shape = image.data.shape
-        tile_shape = [self.tile_size_x_sb.value(), self.tile_size_y_sb.value()]
+        image = self.image_select.value  # NOTE add if not none?
+        if image is None:
+            raise ValueError("No image data available.")
+
+        data_shape = np.array(image.data.shape)
+        tile_shape = self.tile_shape
+        mode = self.mode_select.currentText()
+        constant = self.constant_dsb.value()
         overlap = self.overlap_dsb.value()
         if overlap == int(overlap):
             overlap = int(overlap)
-        mode = self.mode_select.currentText()
-        constant = self.constant_dsb.value()
-        if constant == int(constant):
-            constant = int(constant)
-        channel_dimension = None
 
-        # make sure tile shape is appropriate for Tiler class
+        # Validate and adjust tile shape
+        channel_dimension = None
         is_rgb = image.rgb
         if is_rgb:
-            tile_shape.append(data_shape[-1])  # rgb(a) is last dimension
+            # RGB(A) is the last dimension, could be 3 or 4
+            tile_shape = np.append(tile_shape, data_shape[-1])
             channel_dimension = len(data_shape) - 1
-        else:
+
+        elif len(data_shape) >= len(tile_shape):
             for i in range(len(data_shape) - len(tile_shape)):
-                # x, y should be last 2 dimensions
-                tile_shape.insert(i, data_shape[i])
+                tile_shape = np.insert(tile_shape, i, data_shape[i])
 
-        self._tiler = Tiler(
-            data_shape=data_shape,
-            tile_shape=tile_shape,
-            overlap=overlap,
-            channel_dimension=channel_dimension,
-            mode=mode,
-            constant_value=constant,
-        )
+        else:
+            raise ValueError(
+                "Tiles must have the same or fewer dimensions than the "
+                f"image. Tiles have {len(tile_shape)} dimenions and the "
+                f"image has {len(data_shape)} dimensions."
+            )
 
-        # TODO copy over other image data like transform, colormap, ...
-        metadata = {
+        kwargs = {
             "data_shape": data_shape,
             "tile_shape": tile_shape,
             "overlap": overlap,
@@ -125,7 +155,9 @@ class TilerWidget(QWidget):
             "constant_value": constant,
         }
 
-        return metadata
+        self._tiler = Tiler(**kwargs)
+
+        return kwargs
 
     def _run(self) -> None:
         metadata = self._initialize_tiler()
@@ -147,25 +179,22 @@ class TilerWidget(QWidget):
             colormap=image.colormap,
         )
 
+    def _parameters_changed(self) -> None:
+        # TODO wait until user has completed input, otherwise this is costly
+        if self.preview_chkb.isChecked():
+            self._initialize_tiler()
+            self._update_preview_layer()
+        else:
+            self._remove_preview_layer()
+
     def _validate_overlap_value(self) -> None:
         value = self.overlap_dsb.value()
         if value >= 1:
             self.overlap_dsb.setValue(int(value))
 
-    def _parameters_changed(self) -> None:
-        # FIXME wait until user has completed input, otherwise this is costly
-        if self.preview_chkb.isChecked():
-            self._update_preview_layer()
-        else:
-            self._remove_preview_layer()
-
     def _update_preview_layer(self) -> None:
         """Generate a shapes layer to display tiles preview."""
-        try:
-            self._initialize_tiler()
-        except AttributeError:
-            return
-
+        print("updating preview layer")
         tiles = []
         for tile_id in range(len(self._tiler)):
             bbox = np.array(self._tiler.get_tile_bbox_position(tile_id))
@@ -173,6 +202,7 @@ class TilerWidget(QWidget):
             bbox = bbox[..., [-2, -1]]
             tiles.append(bbox)
 
+        # TODO do not switch layer selection
         if not ("tiler preview" in self.viewer.layers):
             self._preview_layer = self.viewer.add_shapes(name="tiler preview")
         else:
@@ -205,9 +235,111 @@ class TilerWidget(QWidget):
         self.image_select.reset_choices(event)
 
 
+class DimensionField(QWidget):
+    """Base class for dimension input fields."""
+
+    def __init__(self) -> None:
+        """Init DimensionField class."""
+        super().__init__()
+        self.setLayout(QHBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+
+        self._del_btn = QPushButton("⊖")
+        self._del_btn.clicked.connect(self._remove)
+        self._add_btn = QPushButton("⊕")
+        self._add_btn.clicked.connect(self._add_below)
+
+    def _remove(self) -> None:
+        """Remove self from layout and delete."""
+        self.setParent(None)
+        del self
+
+    def _add_below(self) -> None:
+        parent_layout: QVBoxLayout = self.parent().layout()
+        idx = parent_layout.indexOf(self)
+        parent_layout.insertWidget(idx + 1, ExtraDimensionField())
+
+    def get_dims(self) -> np.ndarray:
+        """Return dimension(s) from input field(s)."""
+        dims = np.array([], dtype=int)
+        layout = self.layout()
+        for i in range(layout.count()):
+            widget = layout.itemAt(i).widget()
+            if isinstance(widget, QSpinBox):
+                dims = np.append(dims, widget.value())
+        return dims
+
+
+class XYDimensionField(DimensionField):
+    """Dimension input for X and Y sizes."""
+
+    # REFACTOR probably a better way to signal than propagation?
+    valueChanged = Signal()
+
+    def __init__(self) -> None:
+        """Init XYDimensionField class."""
+        super().__init__()
+        self._x_dim_sb = QSpinBox(minimum=0, maximum=10000)
+        self._x_dim_sb.setValue(DEFAULTS.tile_size)
+        self._x_dim_sb.valueChanged.connect(self.valueChanged)
+        self._y_dim_sb = QSpinBox(minimum=0, maximum=10000)
+        self._y_dim_sb.setValue(DEFAULTS.tile_size)
+        self._y_dim_sb.valueChanged.connect(self.valueChanged)
+
+        self.layout().addWidget(self._x_dim_sb)
+        self.layout().addWidget(QLabel("×"))
+        self.layout().addWidget(self._y_dim_sb)
+        self.layout().addWidget(self._add_btn)
+
+
+class ExtraDimensionField(DimensionField):
+    """Dimension input for an extra dimension (e.g. Z, T, ...)."""
+
+    def __init__(self) -> None:
+        """Init ExtraDimensionField class."""
+        super().__init__()
+
+        self._dim_sb = QSpinBox(minimum=0, maximum=10000)
+        self._dim_sb.setValue(DEFAULTS.extra_dim_size)
+
+        layout = self.layout()
+        layout.addWidget(QLabel("×"))
+        layout.addWidget(self._dim_sb)
+        layout.addWidget(self._del_btn)
+        layout.addWidget(self._add_btn)
+
+
+class TileDimensions(QWidget):
+    """A container for tile dimensions input."""
+
+    valueChanged = Signal()
+
+    def __init__(self) -> None:
+        """Init the TileDimensions class."""
+        super().__init__()
+
+        xy_dims_field = XYDimensionField()
+        xy_dims_field.valueChanged.connect(self.valueChanged)
+
+        self.setLayout(QVBoxLayout())
+        self.layout().setContentsMargins(0, 0, 0, 0)
+        self.layout().addWidget(xy_dims_field)
+
+    def get_dims(self) -> np.ndarray:
+        """Return an array in the order of input fields."""
+        dims = np.array([], dtype=int)
+        layout = self.layout()
+
+        for i in range(layout.count()):
+            field = layout.itemAt(i)
+            dims = np.append(dims, field.widget().get_dims())
+        return np.array(dims).flatten()
+
+
 # if __name__ == "__main__":
 #     from napari import Viewer
 
 #     viewer = Viewer()
 #     viewer.open_sample("scikit-image", "cells3d")
-#     widget = viewer.window.add_dock_widget(TilerWidget(viewer))
+#     tiler_widget = TilerWidget(viewer)
+#     viewer.window.add_dock_widget(tiler_widget)
