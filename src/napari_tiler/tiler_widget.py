@@ -63,6 +63,7 @@ class TilerWidget(QWidget):
         # overlap input
         self.overlap_dsb = QDoubleSpinBox()
         self.overlap_dsb.setValue(DEFAULTS.overlap)
+        self.overlap_dsb.setSingleStep(0.01)
         self.overlap_dsb.valueChanged.connect(self._validate_overlap_value)
         self.overlap_dsb.valueChanged.connect(self._parameters_changed)
 
@@ -198,6 +199,7 @@ class TilerWidget(QWidget):
         for tile_id in range(len(self._tiler)):
             bbox = np.array(self._tiler.get_tile_bbox_position(tile_id))
             # only grab last 2 dimensions of bbox
+            # print('preview layer', tile_id, bbox, bbox[..., [-2, -1]])
             bbox = bbox[..., [-2, -1]]
             tiles.append(bbox)
 
