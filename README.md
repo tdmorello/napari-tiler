@@ -13,7 +13,7 @@
 N-dimensional tiling and merging support for napari
 
 This plugin allows the user to split an image into a stack of tiles and subsequently merge the tiles to reconstruct the orignal image.
-See [Tiler](https://github.com/the-lay/tiler) for more details.
+See [Tiler](https://pypi.org/project/tiler/) by [@thelay](https://github.com/the-lay) for more details.
 
 ----------------------------------
 
