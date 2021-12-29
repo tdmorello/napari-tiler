@@ -80,8 +80,12 @@ class TilerWidget(QWidget):
         self.constant_lbl = QLabel("Constant")
 
         # `preview` toggle
+        self.preview_layout = QHBoxLayout()
         self.preview_chkb = QCheckBox()
         self.preview_chkb.stateChanged.connect(self._parameters_changed)
+        self.preview_shape = QLabel()
+        self.preview_layout.addWidget(self.preview_chkb)
+        self.preview_layout.addWidget(self.preview_shape)
 
         # add form to main layout
         form_layout = QFormLayout()
@@ -92,7 +96,7 @@ class TilerWidget(QWidget):
         form_layout.addRow("Mode", self.mode_select)
         form_layout.addRow(self.constant_lbl, self.constant_dsb)
         # form_layout.addRow(self.constant_dsb_container)
-        form_layout.addRow("Preview", self.preview_chkb)
+        form_layout.addRow("Preview", self.preview_layout)
         self.layout().addLayout(form_layout)
         # `run` button
         self.run_btn = QPushButton("Run")
@@ -187,9 +191,11 @@ class TilerWidget(QWidget):
         # TODO wait until user has completed input, otherwise this is costly
         if self.preview_chkb.isChecked():
             self._initialize_tiler()
+            self.preview_shape.setText(str(self._tiler.get_mosaic_shape()))
             self._update_preview_layer()
         else:
             self._remove_preview_layer()
+            self.preview_shape.setText("")
 
     def _validate_overlap_value(self) -> None:
         value = self.overlap_dsb.value()
