@@ -69,7 +69,10 @@ class TilerWidget(QWidget):
 
         # mode selection
         self.mode_select = QComboBox()
-        self.mode_select.addItems(Tiler.TILING_MODES)
+        # Dec 2021: "irregular" mode is unsupported
+        available_modes = Tiler.TILING_MODES.copy()
+        available_modes.remove('irregular')
+        self.mode_select.addItems(available_modes)
         self.mode_select.currentIndexChanged.connect(self._on_mode_changed)
 
         # `constant` value input
