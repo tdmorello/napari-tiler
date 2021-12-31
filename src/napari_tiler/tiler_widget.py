@@ -163,6 +163,7 @@ class TilerWidget(QWidget):
         tiler = self._tiler
         image = self.image_select.value
         layer_data, layer_meta, layer_type = image.as_layer_data_tuple()
+        layer_meta["name"] = layer_meta["name"] + " tiles"
         layer_meta["metadata"] = metadata
         tiles_stack = np.zeros(
             (len(tiler), *metadata["tile_shape"]), dtype=layer_data.dtype
