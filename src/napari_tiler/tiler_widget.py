@@ -6,16 +6,14 @@ from typing import TYPE_CHECKING, Dict, Optional
 import numpy as np
 from magicgui.widgets import create_widget
 from napari_tools_menu import register_dock_widget
-from qtpy.QtCore import QEvent, Signal
+from qtpy.QtCore import QEvent
 from qtpy.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
     QFormLayout,
-    QHBoxLayout,
     QLabel,
     QPushButton,
-    QSpinBox,
     QVBoxLayout,
     QWidget,
 )
@@ -24,6 +22,7 @@ from tiler import Tiler
 if TYPE_CHECKING:
     import napari  # pragma: no cover
 
+from .components.tile_dimensions import TileDimensions
 
 logger = logging.getLogger(__name__)
 
@@ -232,109 +231,6 @@ class TilerWidget(QWidget):
     def reset_choices(self, event: Optional[QEvent] = None) -> None:
         """Repopulate image list."""
         self.image_select.reset_choices(event)
-
-
-class DimensionField(QWidget):
-    """Base class for dimension input fields."""
-
-    def __init__(self) -> None:
-        """Init DimensionField class."""
-        super().__init__()
-        self.setLayout(QHBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-
-        self._del_btn = QPushButton("⊖")
-        self._del_btn.clicked.connect(self._remove)
-        self._add_btn = QPushButton("⊕")
-        self._add_btn.clicked.connect(self._add_below)
-
-    def _remove(self) -> None:
-        """Remove self from layout and delete."""
-        self.setParent(None)
-        del self
-
-    def _add_below(self) -> None:
-        parent_layout: QVBoxLayout = self.parent().layout()
-        idx = parent_layout.indexOf(self)
-        parent_layout.insertWidget(idx + 1, ExtraDimensionField())
-
-    def get_dims(self) -> np.ndarray:
-        """Return dimension(s) from input field(s)."""
-        dims = np.array([], dtype=int)
-        layout = self.layout()
-        for i in range(layout.count()):
-            widget = layout.itemAt(i).widget()
-            if isinstance(widget, QSpinBox):
-                dims = np.append(dims, widget.value())
-        return dims
-
-
-class XYDimensionField(DimensionField):
-    """Dimension input for X and Y sizes."""
-
-    valueChanged = Signal()
-
-    def __init__(self) -> None:
-        """Init XYDimensionField class."""
-        super().__init__()
-        self._x_dim_sb = QSpinBox(minimum=0, maximum=10000)
-        self._x_dim_sb.setValue(DEFAULTS.tile_size)
-        self._x_dim_sb.valueChanged.connect(self.valueChanged)
-        self._y_dim_sb = QSpinBox(minimum=0, maximum=10000)
-        self._y_dim_sb.setValue(DEFAULTS.tile_size)
-        self._y_dim_sb.valueChanged.connect(self.valueChanged)
-
-        self.layout().addWidget(self._x_dim_sb)
-        self.layout().addWidget(QLabel("×"))
-        self.layout().addWidget(self._y_dim_sb)
-        self.layout().addWidget(self._add_btn)
-
-
-class ExtraDimensionField(DimensionField):
-    """Dimension input for an extra dimension (e.g. Z, T, ...)."""
-
-    valueChanged = Signal()
-
-    def __init__(self) -> None:
-        """Init ExtraDimensionField class."""
-        super().__init__()
-
-        self._dim_sb = QSpinBox(minimum=0, maximum=10000)
-        self._dim_sb.setValue(DEFAULTS.extra_dim_size)
-        self._dim_sb.valueChanged.connect(self.valueChanged)
-
-        layout = self.layout()
-        layout.addWidget(QLabel("×"))
-        layout.addWidget(self._dim_sb)
-        layout.addWidget(self._del_btn)
-        layout.addWidget(self._add_btn)
-
-
-class TileDimensions(QWidget):
-    """A container for tile dimensions input."""
-
-    valueChanged = Signal()
-
-    def __init__(self) -> None:
-        """Init the TileDimensions class."""
-        super().__init__()
-
-        xy_dims_field = XYDimensionField()
-        xy_dims_field.valueChanged.connect(self.valueChanged)
-
-        self.setLayout(QVBoxLayout())
-        self.layout().setContentsMargins(0, 0, 0, 0)
-        self.layout().addWidget(xy_dims_field)
-
-    def get_dims(self) -> np.ndarray:
-        """Return an array in the order of input fields."""
-        dims = np.array([], dtype=int)
-        layout = self.layout()
-
-        for i in range(layout.count()):
-            field = layout.itemAt(i)
-            dims = np.append(dims, field.widget().get_dims())
-        return np.array(dims).flatten()
 
 
 if __name__ == "__main__":
