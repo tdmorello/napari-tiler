@@ -162,21 +162,14 @@ class TilerWidget(QWidget):
         metadata = self._initialize_tiler()
         tiler = self._tiler
         image = self.image_select.value
-        # move parameters to class?
-        tile_shape = metadata["tile_shape"]
-        is_rgb = image.rgb
-
-        tiles_stack = np.zeros((len(tiler), *tile_shape), dtype=image.dtype)
-        for i, tile in tiler.iterate(image.data):
-            tiles_stack[i, ...] = tile
-
-        self.viewer.add_image(
-            tiles_stack,
-            name=f"{image.name} tiles",
-            rgb=is_rgb,
-            metadata=metadata,
-            colormap=image.colormap,
+        layer_data, layer_meta, layer_type = image.as_layer_data_tuple()
+        layer_meta["metadata"] = metadata
+        tiles_stack = np.zeros(
+            (len(tiler), *metadata["tile_shape"]), dtype=layer_data.dtype
         )
+        for i, tile in tiler.iterate(layer_data):
+            tiles_stack[i, ...] = tile
+        self.viewer._add_layer_from_data(tiles_stack, layer_meta, layer_type)
 
     def _parameters_changed(self) -> None:
         # TODO wait until user has completed input, otherwise this is costly
