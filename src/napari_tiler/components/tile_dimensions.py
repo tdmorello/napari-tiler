@@ -1,5 +1,7 @@
 """Contains the TileDimensions container widget."""
 
+from typing import List, Optional
+
 import numpy as np
 from qtpy.QtCore import Signal
 from qtpy.QtWidgets import (
@@ -75,13 +77,24 @@ class TileDimensions(QWidget):
 
         def get_dims(self) -> np.ndarray:
             """Return dimension(s) from input field(s)."""
-            dims = np.array([], dtype=int)
+            return np.array(
+                [field.value() for field in self._get_fields()], dtype=int
+            )
+
+        def _get_fields(self) -> List:
+            return [
+                field
+                for field in self._iterate_layout_widgets()
+                if isinstance(field, QSpinBox)
+            ]
+
+        def _iterate_layout_widgets(self) -> QWidget:
             layout = self.layout()
             for i in range(layout.count()):
-                widget = layout.itemAt(i).widget()
-                if isinstance(widget, QSpinBox):
-                    dims = np.append(dims, widget.value())
-            return dims
+                yield layout.itemAt(i).widget()
+
+        def _update_labels(self) -> None:
+            ...
 
     class XYDimensionField(DimensionField):
         """Dimension input for X and Y sizes."""
@@ -104,7 +117,7 @@ class TileDimensions(QWidget):
     class ExtraDimensionField(DimensionField):
         """Dimension input for an extra dimension (e.g. Z, T, ...)."""
 
-        def __init__(self) -> None:
+        def __init__(self, label: Optional[str] = None) -> None:
             """Init ExtraDimensionField class."""
             super().__init__()
 
