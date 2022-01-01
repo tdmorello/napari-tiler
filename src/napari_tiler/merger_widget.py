@@ -31,9 +31,10 @@ class MergerWidget(QWidget):
         # add title
         title = QLabel("<b>Merge Tiles</b>")
         self.layout().addWidget(title)
-        # image selection
-        self.image_select = create_widget(
-            annotation="napari.layers.Image", label="image_layer"
+
+        # TODO only display image and labels layers
+        self.layer_select = create_widget(
+            annotation="napari.layers.Layer", label="image_layer"
         )
         # mode selection
         self.mode_select = QComboBox()
@@ -41,7 +42,7 @@ class MergerWidget(QWidget):
         # add form to main layout
         form_layout = QFormLayout()
         form_layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
-        form_layout.addRow("Image", self.image_select.native)
+        form_layout.addRow("Image", self.layer_select.native)
         form_layout.addRow("Mode", self.mode_select)
         self.layout().addLayout(form_layout)
         # `run` button
@@ -50,16 +51,26 @@ class MergerWidget(QWidget):
         self.layout().addWidget(self.run_btn)
 
     def _initialize_merger(self) -> None:
-        layer = self.image_select.value
+        image = self.layer_select.value
+        if image is None:
+            raise ValueError("No image data available.")
+
+        layer = self.layer_select.value
         metadata = layer.metadata
-        tiler = Tiler(
-            data_shape=metadata["data_shape"],
-            tile_shape=metadata["tile_shape"],
-            overlap=metadata["overlap"],
-            channel_dimension=metadata["channel_dimension"],
-            mode=metadata["mode"],
-            constant_value=metadata["constant_value"],
-        )
+        try:
+            tiler = Tiler(
+                data_shape=metadata["data_shape"],
+                tile_shape=metadata["tile_shape"],
+                overlap=metadata["overlap"],
+                channel_dimension=metadata["channel_dimension"],
+                mode=metadata["mode"],
+                constant_value=metadata["constant_value"],
+            )
+        except KeyError:
+            raise ValueError(
+                "Could not initialize `Merger`. Check that the layer metadata "
+                "contains the proper arguments for `Tiler` initialization."
+            )
         self._merger = Merger(
             tiler=tiler, window=self.mode_select.currentText()
         )
@@ -67,7 +78,7 @@ class MergerWidget(QWidget):
     def _run(self) -> None:
         self._initialize_merger()
         merger = self._merger
-        image = self.image_select.value
+        image = self.layer_select.value
         layer_data, layer_meta, layer_type = image.as_layer_data_tuple()
         layer_meta["name"] = layer_meta["name"] + " (merged)"
         num_tiles = layer_data.shape[0]
@@ -86,4 +97,4 @@ class MergerWidget(QWidget):
 
     def reset_choices(self, event: Optional[QEvent] = None) -> None:
         """Repopulate image list."""
-        self.image_select.reset_choices(event)
+        self.layer_select.reset_choices(event)
