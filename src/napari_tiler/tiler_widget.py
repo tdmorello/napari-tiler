@@ -50,9 +50,10 @@ class TilerWidget(QWidget):
         title = QLabel("<b>Make Tiles</b>")
         self.layout().addWidget(title)
 
-        # image selection
-        self.image_select = create_widget(
-            annotation="napari.layers.Image", label="image_layer"
+        # layer selection
+        # TODO only display image and labels layers
+        self.layer_select = create_widget(
+            annotation="napari.layers.Layer", label="image_layer"
         )
 
         # tile dimensions input
@@ -73,6 +74,7 @@ class TilerWidget(QWidget):
         # `constant` value input
         self.constant_dsb = QDoubleSpinBox(minimum=0, maximum=255)
         self.constant_lbl = QLabel("Constant")
+        # keep track of `constant`
 
         # `preview` toggle
         self.preview_chkb = QCheckBox()
@@ -81,7 +83,7 @@ class TilerWidget(QWidget):
         # add form to main layout
         form_layout = QFormLayout()
         form_layout.setFieldGrowthPolicy(QFormLayout.AllNonFixedFieldsGrow)
-        form_layout.addRow("Image", self.image_select.native)
+        form_layout.addRow("Image", self.layer_select.native)
         form_layout.addRow("Tile Size", self.tile_dims_container)
         form_layout.addRow("Overlap", self.overlap_dsb)
         form_layout.addRow("Mode", self.mode_select)
@@ -114,11 +116,11 @@ class TilerWidget(QWidget):
         return np.concatenate([shape[2:], shape[[0, 1]]])
 
     def _initialize_tiler(self) -> Dict:
-        image = self.image_select.value  # NOTE add if not none?
-        if image is None:
+        layer = self.layer_select.value
+        if layer is None:
             raise ValueError("No image data available.")
 
-        data_shape = np.array(image.data.shape)
+        data_shape = np.array(layer.data.shape)
         tile_shape = self.tile_shape
         mode = self.mode_select.currentText()
         constant = self.constant_dsb.value()
@@ -128,7 +130,7 @@ class TilerWidget(QWidget):
 
         # Validate and adjust tile shape
         channel_dimension = None
-        is_rgb = image.rgb
+        is_rgb = layer.rgb
         if is_rgb:
             # RGB(A) is the last dimension, could be 3 or 4
             tile_shape = np.append(tile_shape, data_shape[-1])
@@ -161,8 +163,8 @@ class TilerWidget(QWidget):
     def _run(self) -> None:
         metadata = self._initialize_tiler()
         tiler = self._tiler
-        image = self.image_select.value
-        layer_data, layer_meta, layer_type = image.as_layer_data_tuple()
+        layer = self.layer_select.value
+        layer_data, layer_meta, layer_type = layer.as_layer_data_tuple()
         layer_meta["name"] = layer_meta["name"] + " (tiles)"
         layer_meta["metadata"] = metadata
         tiles_stack = np.zeros(
@@ -224,4 +226,4 @@ class TilerWidget(QWidget):
 
     def reset_choices(self, event: Optional[QEvent] = None) -> None:
         """Repopulate image list."""
-        self.image_select.reset_choices(event)
+        self.layer_select.reset_choices(event)
