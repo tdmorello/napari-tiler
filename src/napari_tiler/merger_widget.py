@@ -50,10 +50,8 @@ class MergerWidget(QWidget):
         self.layout().addWidget(self.run_btn)
 
     def _initialize_merger(self) -> None:
-        image = self.image_select.value
-        metadata = image.metadata
-        print(metadata)
-        # is_rgb = image.rgb
+        layer = self.image_select.value
+        metadata = layer.metadata
         tiler = Tiler(
             data_shape=metadata["data_shape"],
             tile_shape=metadata["tile_shape"],
@@ -67,23 +65,19 @@ class MergerWidget(QWidget):
         )
 
     def _run(self) -> None:
-        # TODO copy over other image data like transform, colormap, ...
         self._initialize_merger()
         merger = self._merger
         image = self.image_select.value
-        metadata = image.metadata
-        is_rgb = image.rgb
-        num_tiles = image.data.shape[0]
+        layer_data, layer_meta, layer_type = image.as_layer_data_tuple()
+        layer_meta["name"] = layer_meta["name"] + " (merged)"
+        num_tiles = layer_data.shape[0]
         for i in range(num_tiles):
             merger.add(i, image.data[i, ...])
         merged = merger.merge(dtype=image.dtype)
-        self.viewer.add_image(
-            merged,
-            name=f"{image.name} merged",
-            rgb=is_rgb,
-            metadata=metadata,
-            colormap=image.colormap,
-        )
+        # FIXME better way to handle differences in input/output dimensions?
+        for t in ["rotate", "scale", "shear", "translate"]:
+            del layer_meta[t]
+        self.viewer._add_layer_from_data(merged, layer_meta, layer_type)
 
     # thanks to https://github.com/BiAPoL/napari-clusters-plotter/blob/main/napari_clusters_plotter/_measure.py  # noqa
     def showEvent(self, event: QEvent) -> None:  # noqa: D102
@@ -93,14 +87,3 @@ class MergerWidget(QWidget):
     def reset_choices(self, event: Optional[QEvent] = None) -> None:
         """Repopulate image list."""
         self.image_select.reset_choices(event)
-
-
-# if __name__ == "__main__":
-#     from napari import Viewer
-
-#     from napari_tiler.tiler_widget import TilerWidget
-
-#     viewer = Viewer()
-#     viewer.open_sample("scikit-image", "cell")
-#     viewer.window.add_dock_widget(TilerWidget(viewer))
-#     viewer.window.add_dock_widget(MergerWidget(viewer))
