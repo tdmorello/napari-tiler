@@ -163,7 +163,7 @@ class TilerWidget(QWidget):
         tiler = self._tiler
         image = self.image_select.value
         layer_data, layer_meta, layer_type = image.as_layer_data_tuple()
-        layer_meta["name"] = layer_meta["name"] + " tiles"
+        layer_meta["name"] = layer_meta["name"] + " (tiles)"
         layer_meta["metadata"] = metadata
         tiles_stack = np.zeros(
             (len(tiler), *metadata["tile_shape"]), dtype=layer_data.dtype
@@ -225,12 +225,3 @@ class TilerWidget(QWidget):
     def reset_choices(self, event: Optional[QEvent] = None) -> None:
         """Repopulate image list."""
         self.image_select.reset_choices(event)
-
-
-if __name__ == "__main__":
-    from napari import Viewer
-
-    viewer = Viewer()
-    viewer.open_sample("scikit-image", "cells3d")
-    tiler_widget = TilerWidget(viewer)
-    viewer.window.add_dock_widget(tiler_widget)
