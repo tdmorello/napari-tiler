@@ -9,12 +9,15 @@ MY_PLUGIN_NAME = "napari-tiler"
 MY_WIDGET_NAMES = ["Tiler Widget", "Merger Widget"]
 
 
-sample_image_data = [
-    (np.random.random((512, 512)), False),  # 2d
-    (np.random.random((5, 512, 512)), False),  # 3d
-    (np.random.random((512, 512, 3)), True),  # rgb
-    (np.random.random((512, 512, 4)), True),  # rgba
+sample_layer_data = [
+    (np.random.random((512, 512)), False, "image"),  # 2d
+    (np.random.random((5, 512, 512)), False, "image"),  # 3d
+    (np.random.random((512, 512, 3)), True, "image"),  # rgb
+    (np.random.random((512, 512, 4)), True, "image"),  # rgba
+    [np.random.randint(0, 100, (512, 512), dtype=int), False, "labels"],
 ]
+
+sample_layer_ids = ["2d", "3d", "rgb", "rgba", "labels"]
 
 
 @pytest.mark.parametrize("widget_name", MY_WIDGET_NAMES)
@@ -29,36 +32,52 @@ def test_load_widgets(widget_name, make_napari_viewer, napari_plugin_manager):
     assert len(viewer.window._dock_widgets) == num_dw + 1
 
 
-def test_tiler_widget_no_image(make_napari_viewer):
-    """Test error raised when no image is loaded."""
+def test_widgets_no_input(make_napari_viewer):
+    """Test error raised when no layer is loaded."""
     viewer = make_napari_viewer()
-    widget = napari_tiler.tiler_widget.TilerWidget(viewer)
-    viewer.window.add_dock_widget(widget)
+    tiler_widget = napari_tiler.tiler_widget.TilerWidget(viewer)
+    merger_widget = napari_tiler.merger_widget.MergerWidget(viewer)
+    viewer.window.add_dock_widget(tiler_widget)
+    viewer.window.add_dock_widget(merger_widget)
     with pytest.raises(ValueError):
-        widget._run()
+        tiler_widget._run()
+    with pytest.raises(ValueError):
+        merger_widget._run()
 
 
-@pytest.mark.parametrize("image_data,rgb", sample_image_data)
-def test_tiler_widget_default_parameters(make_napari_viewer, image_data, rgb):
+@pytest.mark.parametrize(
+    "layer_data,rgb,layer_type", sample_layer_data, ids=sample_layer_ids
+)
+def test_tiler_widget_default_parameters(
+    make_napari_viewer, layer_data, rgb, layer_type
+):
     """Test basic functionality of the tiler widget."""
     viewer = make_napari_viewer()
     widget = napari_tiler.tiler_widget.TilerWidget(viewer)
     viewer.window.add_dock_widget(widget)
 
-    viewer.add_image(image_data, rgb=rgb)
+    viewer._add_layer_from_data(
+        layer_data, {"rgb": rgb} if rgb else {}, layer_type
+    )
     num_layers = len(viewer.layers)
     widget._run()
     assert len(viewer.layers) == num_layers + 1
 
 
-@pytest.mark.parametrize("image_data,rgb", sample_image_data)
-def test_tiler_widget_generate_preview(make_napari_viewer, image_data, rgb):
+@pytest.mark.parametrize(
+    "layer_data,rgb,layer_type", sample_layer_data, ids=sample_layer_ids
+)
+def test_tiler_widget_generate_preview(
+    make_napari_viewer, layer_data, rgb, layer_type
+):
     """Test basic functionality of the tiler widget."""
     viewer = make_napari_viewer()
     widget = napari_tiler.tiler_widget.TilerWidget(viewer)
     viewer.window.add_dock_widget(widget)
 
-    viewer.add_image(image_data, rgb=rgb)
+    viewer._add_layer_from_data(
+        layer_data, {"rgb": rgb} if rgb else {}, layer_type
+    )
     num_layers = len(viewer.layers)
 
     widget.preview_chkb.setChecked(True)
@@ -122,14 +141,20 @@ def test_tiler_widget_add_remove_tile_dimensions(make_napari_viewer):
     assert dims_layout.count() == cnt
 
 
-@pytest.mark.parametrize("image_data,rgb", sample_image_data)
-def test_tiler_widget(image_data, rgb, make_napari_viewer):
+@pytest.mark.parametrize(
+    "layer_data,rgb,layer_type", sample_layer_data, ids=sample_layer_ids
+)
+def test_tiler_widget_too_many_dimensions(
+    layer_data, rgb, layer_type, make_napari_viewer
+):
     """Test that tiler widget raises an error for too many tile dimensions."""
     viewer = make_napari_viewer()
     widget = napari_tiler.tiler_widget.TilerWidget(viewer)
     viewer.window.add_dock_widget(widget)
 
-    viewer.add_image(image_data, rgb=rgb)
+    viewer._add_layer_from_data(
+        layer_data, {"rgb": rgb} if rgb else {}, layer_type
+    )
     widget._run()
 
     # test raises value error when tile dims > image dims
@@ -140,8 +165,12 @@ def test_tiler_widget(image_data, rgb, make_napari_viewer):
         widget._run()
 
 
-@pytest.mark.parametrize("image_data,rgb", sample_image_data)
-def test_merger_widget_default_parameters(image_data, rgb, make_napari_viewer):
+@pytest.mark.parametrize(
+    "layer_data,rgb,layer_type", sample_layer_data, ids=sample_layer_ids
+)
+def test_merger_widget_default_parameters(
+    layer_data, rgb, layer_type, make_napari_viewer
+):
     """Test that merger widget output matches pre-tiled image."""
     viewer = make_napari_viewer()
     tiler_widget = napari_tiler.tiler_widget.TilerWidget(viewer)
@@ -149,9 +178,11 @@ def test_merger_widget_default_parameters(image_data, rgb, make_napari_viewer):
     viewer.window.add_dock_widget(tiler_widget)
     viewer.window.add_dock_widget(merger_widget)
 
-    viewer.add_image(image_data, rgb=rgb)
+    viewer._add_layer_from_data(
+        layer_data, {"rgb": rgb} if rgb else {}, layer_type
+    )
     tiler_widget._run()
-    merger_widget.image_select.native.setCurrentIndex(1)
+    merger_widget.layer_select.native.setCurrentIndex(1)
 
     # merger creates a new layer
     num_layers = len(viewer.layers)
@@ -160,4 +191,13 @@ def test_merger_widget_default_parameters(image_data, rgb, make_napari_viewer):
 
     # merged layer is same as original
     merged_image_data = viewer.layers[-1].data
-    np.testing.assert_array_equal(image_data, merged_image_data)
+    np.testing.assert_array_equal(layer_data, merged_image_data)
+
+
+def test_merger_widget_no_metadata(make_napari_viewer):
+    viewer = make_napari_viewer()
+    merger_widget = napari_tiler.merger_widget.MergerWidget(viewer)
+    viewer.window.add_dock_widget(merger_widget)
+    viewer.add_image(np.random.random((512, 512)))
+    with pytest.raises(ValueError):
+        merger_widget._run()
