@@ -8,6 +8,7 @@ from magicgui.widgets import create_widget
 from napari_tools_menu import register_dock_widget
 from qtpy.QtCore import QEvent, Signal
 from qtpy.QtWidgets import (
+    QAbstractSpinBox,
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
@@ -63,7 +64,7 @@ class TilerWidget(QWidget):
         # overlap input
         self.overlap_dsb = QDoubleSpinBox()
         self.overlap_dsb.setValue(DEFAULTS.overlap)
-        self.overlap_dsb.setSingleStep(0.01)
+        self.overlap_dsb.setStepType(QAbstractSpinBox.AdaptiveDecimalStepType)
         self.overlap_dsb.valueChanged.connect(self._validate_overlap_value)
         self.overlap_dsb.valueChanged.connect(self._parameters_changed)
 
@@ -175,9 +176,7 @@ class TilerWidget(QWidget):
         tile_shape = metadata["tile_shape"]
         is_rgb = image.rgb
 
-        tiles_stack = np.zeros((len(tiler), *tile_shape), dtype=image.dtype)
-        for i, tile in tiler.iterate(image.data):
-            tiles_stack[i, ...] = tile
+        tiles_stack = tiler.get_all_tiles(image.data).astype(image.dtype)
 
         self.viewer.add_image(
             tiles_stack,
@@ -206,7 +205,7 @@ class TilerWidget(QWidget):
         """Generate a shapes layer to display tiles preview."""
         tiles = []
         for tile_id in range(len(self._tiler)):
-            bbox = np.array(self._tiler.get_tile_bbox_position(tile_id))
+            bbox = np.array(self._tiler.get_tile_bbox(tile_id))
             # only grab last 2 dimensions of bbox
             bbox = bbox[..., [-2, -1]]
             tiles.append(bbox)
