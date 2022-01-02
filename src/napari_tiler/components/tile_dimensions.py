@@ -1,6 +1,6 @@
 """Contains the TileDimensions container widget."""
 
-from typing import List, Optional
+from typing import List
 
 import numpy as np
 from qtpy.QtCore import Signal
@@ -20,16 +20,26 @@ class TileDimensions(QWidget):
     valueChanged = Signal()
 
     # dims to determine max dims available for image
-    def __init__(self) -> None:
+    def __init__(self, max_dims: int = 2) -> None:
         """Init the TileDimensions class."""
         super().__init__()
 
         xy_dims_field = self.XYDimensionField()
         xy_dims_field.valueChanged.connect(self.valueChanged)
 
+        self.max_dims = max_dims
         self.setLayout(QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
         self.layout().addWidget(xy_dims_field)
+
+    @property
+    def max_dims(self) -> int:
+        """Return max dimensions."""
+        return self._max_dims
+
+    @max_dims.setter
+    def max_dims(self, value: int) -> None:
+        self._max_dims = value
 
     def get_dims(self) -> np.ndarray:
         """Return an array in the order of input fields."""
@@ -45,6 +55,9 @@ class TileDimensions(QWidget):
         extra_dim = self.ExtraDimensionField()
         extra_dim.valueChanged.connect(self.valueChanged)
         self.layout().insertWidget(idx + 1, extra_dim)
+        num_fields = len(self.get_dims())
+        if num_fields > self.max_dims:
+            raise ValueError("Warning: too many dimensions entered.")
 
     class DimensionField(QWidget):
         """Base class for dimension input fields.
@@ -66,6 +79,12 @@ class TileDimensions(QWidget):
             self._add_btn = QPushButton("⊕")
             self._add_btn.clicked.connect(self._add_below)
 
+        def get_dims(self) -> np.ndarray:
+            """Return dimension(s) from input field(s)."""
+            return np.array(
+                [field.value() for field in self._get_fields()], dtype=int
+            )
+
         def _remove(self) -> None:
             """Remove self from layout and delete."""
             self.setParent(None)
@@ -74,12 +93,6 @@ class TileDimensions(QWidget):
         def _add_below(self) -> None:
             idx = self.parent().layout().indexOf(self)
             self.parent()._add_below(idx)
-
-        def get_dims(self) -> np.ndarray:
-            """Return dimension(s) from input field(s)."""
-            return np.array(
-                [field.value() for field in self._get_fields()], dtype=int
-            )
 
         def _get_fields(self) -> List:
             return [
@@ -92,9 +105,6 @@ class TileDimensions(QWidget):
             layout = self.layout()
             for i in range(layout.count()):
                 yield layout.itemAt(i).widget()
-
-        def _update_labels(self) -> None:
-            ...
 
     class XYDimensionField(DimensionField):
         """Dimension input for X and Y sizes."""
@@ -117,7 +127,7 @@ class TileDimensions(QWidget):
     class ExtraDimensionField(DimensionField):
         """Dimension input for an extra dimension (e.g. Z, T, ...)."""
 
-        def __init__(self, label: Optional[str] = None) -> None:
+        def __init__(self) -> None:
             """Init ExtraDimensionField class."""
             super().__init__()
 

@@ -55,6 +55,9 @@ class TilerWidget(QWidget):
         self.layer_select = create_widget(
             annotation="napari.layers.Layer", label="image_layer"
         )
+        self.layer_select.native.currentIndexChanged.connect(
+            self._on_layer_select
+        )
 
         # tile dimensions input
         self.tile_dims_container = TileDimensions()
@@ -69,7 +72,7 @@ class TilerWidget(QWidget):
         # mode selection
         self.mode_select = QComboBox()
         self.mode_select.addItems(Tiler.TILING_MODES)
-        self.mode_select.currentIndexChanged.connect(self._on_mode_changed)
+        self.mode_select.currentIndexChanged.connect(self._on_mode_select)
 
         # `constant` value input
         self.constant_dsb = QDoubleSpinBox(minimum=0, maximum=255)
@@ -97,10 +100,16 @@ class TilerWidget(QWidget):
         self.layout().addWidget(self.run_btn)
 
         # initial show or hide constant input spinbox
-        self._on_mode_changed()
+        self._on_mode_select()
         self._parameters_changed()
 
-    def _on_mode_changed(self) -> None:
+    def _on_layer_select(self) -> None:
+        try:
+            self.tile_dims_container.max_dims = self.layer_select.value.ndim
+        except AttributeError:
+            pass
+
+    def _on_mode_select(self) -> None:
         if self.mode_select.currentText() == "constant":
             self.constant_dsb.show()
             self.constant_lbl.show()

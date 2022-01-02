@@ -132,6 +132,7 @@ def test_tiler_widget_add_remove_tile_dimensions(make_napari_viewer):
     viewer = make_napari_viewer()
     widget = napari_tiler.tiler_widget.TilerWidget(viewer)
     viewer.window.add_dock_widget(widget)
+    viewer.add_image(np.random.random((5, 5, 5, 5)))
 
     dims_layout = widget.tile_dims_container.layout()
     cnt = dims_layout.count()
@@ -195,6 +196,7 @@ def test_merger_widget_default_parameters(
 
 
 def test_merger_widget_no_metadata(make_napari_viewer):
+    """Merger widget raises error when metadata is not available."""
     viewer = make_napari_viewer()
     merger_widget = napari_tiler.merger_widget.MergerWidget(viewer)
     viewer.window.add_dock_widget(merger_widget)
