@@ -24,39 +24,39 @@ class DimensionsInput(QWidget):
         """Init the DimensionsInput class."""
         super().__init__()
 
+        # FIXME does not recognize difference between XY(Z) and XY(RGB)
         self.data_shape = data_shape
         if self.data_shape is not None:
             self._max_ndims = len(self.data_shape)
-
-        xy_dims_field = self.DimensionField(
-            2, [128, 128], ["X", "Y"], add_btn=True, del_btn=False
-        )
-        xy_dims_field.valueChanged.connect(self.valueChanged)
 
         # construct layout
         self.setLayout(QVBoxLayout())
         self.layout().setContentsMargins(0, 0, 0, 0)
 
+        xy_dims_field = self.DimensionField(
+            2, [128, 128], ["X", "Y"], add_btn=True, del_btn=False
+        )
+        xy_dims_field.valueChanged.connect(self.valueChanged)
         self.layout().addWidget(xy_dims_field)
 
-    def get_dims(self) -> np.ndarray:
+    @property
+    def dims(self) -> np.ndarray:
         """Return an array in the order of input fields."""
         dims = np.array([], dtype=int)
         layout = self.layout()
 
         for i in range(layout.count()):
             field = layout.itemAt(i)
-            dims = np.append(dims, field.widget().get_dims())
+            dims = np.append(dims, field.widget().dims)
         return np.array(dims).flatten()
 
     def _add_below(self, idx) -> None:
         extra_dim = self.DimensionField()
         extra_dim.valueChanged.connect(self.valueChanged)
         self.layout().insertWidget(idx + 1, extra_dim)
-        num_fields = len(self.get_dims())
-        if self.data_shape is not None:
-            if num_fields > len(self.data_shape):
-                raise ValueError("Warning: too many dimensions entered.")
+        num_fields = len(self.dims)
+        if num_fields > self._max_ndims:
+            raise ValueError("Warning: too many dimensions entered.")
 
     class DimensionField(QWidget):
         """Class for dimension input fields."""
@@ -118,7 +118,8 @@ class DimensionsInput(QWidget):
             self.setParent(None)
             del self
 
-        def get_dims(self) -> np.ndarray:
+        @property
+        def dims(self) -> np.ndarray:
             """Return dimension(s) from input field(s)."""
             return np.array(
                 [field.value() for field in self._fields],

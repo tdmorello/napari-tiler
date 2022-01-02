@@ -105,9 +105,7 @@ class TilerWidget(QWidget):
 
     def _on_layer_select(self) -> None:
         try:
-            self.tile_dims_container.data_shape = (
-                self.layer_select.value.data.shape
-            )
+            self.tile_dims_container._max_ndims = self.layer_select.value.ndim
         except AttributeError:
             pass
 
@@ -122,7 +120,7 @@ class TilerWidget(QWidget):
     @property
     def tile_shape(self) -> np.ndarray:
         """Returns tile dimensions reordered to fit napari convention."""
-        shape = self.tile_dims_container.get_dims()
+        shape = self.tile_dims_container.dims
         # Move X and Y dimensions to the end, keep the rest in order
         return np.concatenate([shape[2:], shape[[0, 1]]])
 
