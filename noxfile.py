@@ -15,7 +15,7 @@ def diagram(session: Session) -> None:
         args = session.posargs
     else:
         args = [
-            "--filter-mode=ALL",
+            "--filter-mode=SPECIAL",
             "--module-names=n",
             "--output-directory=resources/diagrams",
             "--output=png",
