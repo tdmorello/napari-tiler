@@ -8,6 +8,29 @@ from nox.sessions import Session
 python_versions = ["3.7", "3.8", "3.9", "3.10"]
 
 
+@nox.session
+def diagram(session: Session) -> None:
+    """Create class diagrams using `pyreverse`."""
+    if session.posargs:
+        args = session.posargs
+    else:
+        args = [
+            "--filter-mode=ALL",
+            "--module-names=n",
+            "--output-directory=resources/diagrams",
+            "--output=png",
+            # "--show-ancestors=1",
+            # "--show-associated=1",
+        ]
+    session.run("pyreverse", *args, "napari_tiler", external=True)
+
+
+@nox.session
+def lint(session: Session) -> None:
+    """Run linting."""
+    pass
+
+
 @nox.session(python=python_versions)
 def tests(session: Session) -> None:
     """Run the test suite."""
@@ -20,12 +43,6 @@ def tests(session: Session) -> None:
     session.run("pytest")
 
 
-@nox.session
-def lint(session: Session) -> None:
-    """Run linting."""
-    pass
-
-
 def _install_via_pip(session: Session) -> None:
     with tempfile.NamedTemporaryFile() as requirements:
         if sys.platform == "win32":
@@ -36,7 +53,7 @@ def _install_via_pip(session: Session) -> None:
             "poetry",
             "export",
             "--without-hashes",
-            "-o",
+            "--output",
             requirements_path,
             external=True,
         )
