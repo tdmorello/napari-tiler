@@ -142,28 +142,17 @@ def test_tiler_widget_add_remove_tile_dimensions(make_napari_viewer):
     assert dims_layout.count() == cnt
 
 
-@pytest.mark.parametrize(
-    "layer_data,rgb,layer_type", sample_layer_data, ids=sample_layer_ids
-)
-def test_tiler_widget_too_many_dimensions(
-    layer_data, rgb, layer_type, make_napari_viewer
-):
-    """Test that tiler widget raises an error for too many tile dimensions."""
+def test_tiler_widget_too_many_dimensions(make_napari_viewer):
+    """Tiler widget raises an error when too many tile dimensions."""
     viewer = make_napari_viewer()
     widget = napari_tiler.tiler_widget.TilerWidget(viewer)
     viewer.window.add_dock_widget(widget)
-
-    viewer._add_layer_from_data(
-        layer_data, {"rgb": rgb} if rgb else {}, layer_type
-    )
-    widget._run()
+    viewer.add_image(np.random.random((512, 512)))
 
     # test raises value error when tile dims > image dims
     with pytest.raises(ValueError):
         dims_layout = widget.tile_dims_container.layout()
         dims_layout.itemAt(0).widget()._add_below()
-        dims_layout.itemAt(0).widget()._add_below()
-        widget._run()
 
 
 @pytest.mark.parametrize(

@@ -22,7 +22,7 @@ from tiler import Tiler
 if TYPE_CHECKING:
     import napari  # pragma: no cover
 
-from .components.tile_dimensions import TileDimensions
+from .components.tile_dimensions import DimensionsInput
 
 logger = logging.getLogger(__name__)
 
@@ -60,7 +60,7 @@ class TilerWidget(QWidget):
         )
 
         # tile dimensions input
-        self.tile_dims_container = TileDimensions()
+        self.tile_dims_container = DimensionsInput()
         self.tile_dims_container.valueChanged.connect(self._parameters_changed)
 
         # overlap input
@@ -105,7 +105,9 @@ class TilerWidget(QWidget):
 
     def _on_layer_select(self) -> None:
         try:
-            self.tile_dims_container.max_dims = self.layer_select.value.ndim
+            self.tile_dims_container.data_shape = (
+                self.layer_select.value.data.shape
+            )
         except AttributeError:
             pass
 
