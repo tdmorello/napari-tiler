@@ -22,11 +22,11 @@ if TYPE_CHECKING:
 class MergerWidget(QWidget):
     """A class for the Merger widget."""
 
-    def __init__(self, napari_viewer: "napari.viewer.Viewer") -> None:
+    def __init__(self, viewer: "napari.viewer.Viewer") -> None:
         """Init the merger class."""
         super().__init__()
         # create main layout
-        self.viewer = napari_viewer
+        self.viewer = viewer
         self.setLayout(QVBoxLayout())
         # add title
         title = QLabel("<b>Merge Tiles</b>")

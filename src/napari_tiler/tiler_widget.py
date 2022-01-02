@@ -40,11 +40,11 @@ class DEFAULTS:
 class TilerWidget(QWidget):
     """The main Tiler widget."""
 
-    def __init__(self, napari_viewer: "napari.viewer.Viewer") -> None:
+    def __init__(self, viewer: "napari.viewer.Viewer") -> None:
         """Init the Tiler widget."""
         super().__init__()
 
-        self.viewer = napari_viewer
+        self.viewer = viewer
         self.setLayout(QVBoxLayout())
 
         # add title
