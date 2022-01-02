@@ -88,3 +88,4 @@ venv/
 poetry.lock
 _requirements*.txt
 notes/
+scratch.ipynb
