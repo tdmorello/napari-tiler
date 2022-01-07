@@ -8,6 +8,7 @@ from magicgui.widgets import create_widget
 from napari_tools_menu import register_dock_widget
 from qtpy.QtCore import QEvent, Signal
 from qtpy.QtWidgets import (
+    QAbstractSpinBox,
     QCheckBox,
     QComboBox,
     QDoubleSpinBox,
@@ -63,12 +64,16 @@ class TilerWidget(QWidget):
         # overlap input
         self.overlap_dsb = QDoubleSpinBox()
         self.overlap_dsb.setValue(DEFAULTS.overlap)
+        self.overlap_dsb.setStepType(QAbstractSpinBox.AdaptiveDecimalStepType)
         self.overlap_dsb.valueChanged.connect(self._validate_overlap_value)
         self.overlap_dsb.valueChanged.connect(self._parameters_changed)
 
         # mode selection
         self.mode_select = QComboBox()
-        self.mode_select.addItems(Tiler.TILING_MODES)
+        # Dec 2021: "irregular" mode is unsupported
+        available_modes = Tiler.TILING_MODES.copy()
+        available_modes.remove("irregular")
+        self.mode_select.addItems(available_modes)
         self.mode_select.currentIndexChanged.connect(self._on_mode_changed)
 
         # `constant` value input
@@ -76,8 +81,12 @@ class TilerWidget(QWidget):
         self.constant_lbl = QLabel("Constant")
 
         # `preview` toggle
+        self.preview_layout = QHBoxLayout()
         self.preview_chkb = QCheckBox()
         self.preview_chkb.stateChanged.connect(self._parameters_changed)
+        self.preview_shape = QLabel()
+        self.preview_layout.addWidget(self.preview_chkb)
+        self.preview_layout.addWidget(self.preview_shape)
 
         # add form to main layout
         form_layout = QFormLayout()
@@ -88,7 +97,7 @@ class TilerWidget(QWidget):
         form_layout.addRow("Mode", self.mode_select)
         form_layout.addRow(self.constant_lbl, self.constant_dsb)
         # form_layout.addRow(self.constant_dsb_container)
-        form_layout.addRow("Preview", self.preview_chkb)
+        form_layout.addRow("Preview", self.preview_layout)
         self.layout().addLayout(form_layout)
         # `run` button
         self.run_btn = QPushButton("Run")
@@ -167,9 +176,7 @@ class TilerWidget(QWidget):
         tile_shape = metadata["tile_shape"]
         is_rgb = image.rgb
 
-        tiles_stack = np.zeros((len(tiler), *tile_shape), dtype=image.dtype)
-        for i, tile in tiler.iterate(image.data):
-            tiles_stack[i, ...] = tile
+        tiles_stack = tiler.get_all_tiles(image.data).astype(image.dtype)
 
         self.viewer.add_image(
             tiles_stack,
@@ -183,9 +190,11 @@ class TilerWidget(QWidget):
         # TODO wait until user has completed input, otherwise this is costly
         if self.preview_chkb.isChecked():
             self._initialize_tiler()
+            self.preview_shape.setText(str(self._tiler.get_mosaic_shape()))
             self._update_preview_layer()
         else:
             self._remove_preview_layer()
+            self.preview_shape.setText("")
 
     def _validate_overlap_value(self) -> None:
         value = self.overlap_dsb.value()
@@ -196,7 +205,7 @@ class TilerWidget(QWidget):
         """Generate a shapes layer to display tiles preview."""
         tiles = []
         for tile_id in range(len(self._tiler)):
-            bbox = np.array(self._tiler.get_tile_bbox_position(tile_id))
+            bbox = np.array(self._tiler.get_tile_bbox(tile_id))
             # only grab last 2 dimensions of bbox
             bbox = bbox[..., [-2, -1]]
             tiles.append(bbox)
