@@ -56,9 +56,7 @@ def test_tiler_widget_default_parameters(
     widget = napari_tiler.tiler_widget.TilerWidget(viewer)
     viewer.window.add_dock_widget(widget)
 
-    viewer._add_layer_from_data(
-        layer_data, {"rgb": rgb} if rgb else {}, layer_type
-    )
+    viewer._add_layer_from_data(layer_data, {"rgb": rgb} if rgb else {}, layer_type)
     num_layers = len(viewer.layers)
     widget._run()
     assert len(viewer.layers) == num_layers + 1
@@ -67,17 +65,13 @@ def test_tiler_widget_default_parameters(
 @pytest.mark.parametrize(
     "layer_data,rgb,layer_type", sample_layer_data, ids=sample_layer_ids
 )
-def test_tiler_widget_generate_preview(
-    make_napari_viewer, layer_data, rgb, layer_type
-):
+def test_tiler_widget_generate_preview(make_napari_viewer, layer_data, rgb, layer_type):
     """Test basic functionality of the tiler widget."""
     viewer = make_napari_viewer()
     widget = napari_tiler.tiler_widget.TilerWidget(viewer)
     viewer.window.add_dock_widget(widget)
 
-    viewer._add_layer_from_data(
-        layer_data, {"rgb": rgb} if rgb else {}, layer_type
-    )
+    viewer._add_layer_from_data(layer_data, {"rgb": rgb} if rgb else {}, layer_type)
     num_layers = len(viewer.layers)
 
     widget.preview_chkb.setChecked(True)
@@ -168,9 +162,7 @@ def test_merger_widget_default_parameters(
     viewer.window.add_dock_widget(tiler_widget)
     viewer.window.add_dock_widget(merger_widget)
 
-    viewer._add_layer_from_data(
-        layer_data, {"rgb": rgb} if rgb else {}, layer_type
-    )
+    viewer._add_layer_from_data(layer_data, {"rgb": rgb} if rgb else {}, layer_type)
     tiler_widget._run()
     merger_widget.layer_select.native.setCurrentIndex(1)
 
@@ -181,7 +173,7 @@ def test_merger_widget_default_parameters(
 
     # merged layer is same as original
     merged_image_data = viewer.layers[-1].data
-    np.testing.assert_array_equal(layer_data, merged_image_data)
+    np.testing.assert_almost_equal(layer_data, merged_image_data)
 
 
 def test_merger_widget_no_metadata(make_napari_viewer):
