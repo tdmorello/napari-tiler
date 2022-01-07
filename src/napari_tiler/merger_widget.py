@@ -71,9 +71,7 @@ class MergerWidget(QWidget):
                 "Could not initialize `Merger`. Check that the layer metadata "
                 "contains the proper arguments for `Tiler` initialization."
             )
-        self._merger = Merger(
-            tiler=tiler, window=self.mode_select.currentText()
-        )
+        self._merger = Merger(tiler=tiler, window=self.mode_select.currentText())
 
     def _run(self) -> None:
         self._initialize_merger()

@@ -67,6 +67,7 @@ class DimensionsInput(QWidget):
 
     @property
     def _max_ndims(self) -> int:
+        # napari will send ndim = 2 for 2D RGB, but shape will be length 3...
         return len(self.data_shape)
 
     def _add_below(self, idx) -> None:
@@ -75,7 +76,7 @@ class DimensionsInput(QWidget):
         self.layout().insertWidget(idx + 1, extra_dim)
         num_fields = len(self.dims)
         if num_fields > self._max_ndims:
-            raise ValueError("Warning: too many dimensions entered.")
+            raise ValueError("Warning: too many dimensions for selected layer.")
 
     class DimensionField(QWidget):
         """Class for dimension input fields."""
