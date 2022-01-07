@@ -1,6 +1,6 @@
 """Contains the DimensionsInput container widget."""
 
-from typing import List, Optional
+from typing import List, Optional, Tuple
 
 import numpy as np
 from qtpy.QtCore import Signal
@@ -20,14 +20,23 @@ class DimensionsInput(QWidget):
     valueChanged = Signal()
 
     # dims to determine max dims available for image
-    def __init__(self, data_shape=None) -> None:
-        """Init the DimensionsInput class."""
+    def __init__(
+        self,
+        data_shape: Optional[Tuple[int]] = None,
+        axis_labels: Optional[str] = None,
+    ) -> None:
+        """Init DimensionsInput.
+
+        Args:
+            data_shape (Optional[ArrayLike], optional): [description]. Defaults to None.
+            axis_labels (Optional[str], optional): [description]. Defaults to None.
+        """
         super().__init__()
 
         # FIXME does not recognize difference between XY(Z) and XY(RGB)
-        self.data_shape = data_shape
-        if self.data_shape is not None:
-            self._max_ndims = len(self.data_shape)
+        self.data_shape = data_shape  # type: ignore
+        if axis_labels is not None:
+            self.axis_labels = axis_labels
 
         # construct layout
         self.setLayout(QVBoxLayout())
@@ -43,12 +52,22 @@ class DimensionsInput(QWidget):
     def dims(self) -> np.ndarray:
         """Return an array in the order of input fields."""
         dims = np.array([], dtype=int)
-        layout = self.layout()
-
-        for i in range(layout.count()):
-            field = layout.itemAt(i)
+        for i in range(self.layout().count()):
+            field = self.layout().itemAt(i)
             dims = np.append(dims, field.widget().dims)
         return np.array(dims).flatten()
+
+    @property
+    def data_shape(self) -> Tuple[int]:
+        return self._data_shape
+
+    @data_shape.setter
+    def data_shape(self, value) -> None:
+        self._data_shape = value
+
+    @property
+    def _max_ndims(self) -> int:
+        return len(self.data_shape)
 
     def _add_below(self, idx) -> None:
         extra_dim = self.DimensionField()

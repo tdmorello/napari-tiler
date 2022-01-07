@@ -2,3 +2,4 @@
 ignore=ANN101
 docstring-convention=google
 min_python_version = 3.7
+max_line_length=88

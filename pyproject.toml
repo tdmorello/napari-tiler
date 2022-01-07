@@ -70,11 +70,11 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.black]
 target-version = ['py36', 'py37', 'py38', 'py39', 'py310']
-line-length = 79
+line-length = 88
 
 [tool.isort]
 profile = "black"
-line_length = 79
+line_length = 88
 
 [tool.pytest.ini_options]
 # addopts = ["--cov=napari_tiler", "--cov-report=html", "--cov-report=xml"]

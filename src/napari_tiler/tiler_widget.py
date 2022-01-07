@@ -55,9 +55,7 @@ class TilerWidget(QWidget):
         self.layer_select = create_widget(
             annotation="napari.layers.Layer", label="image_layer"
         )
-        self.layer_select.native.currentIndexChanged.connect(
-            self._on_layer_select
-        )
+        self.layer_select.native.currentIndexChanged.connect(self._on_layer_select)
 
         # tile dimensions input
         self.tile_dims_container = DimensionsInput()
@@ -105,7 +103,8 @@ class TilerWidget(QWidget):
 
     def _on_layer_select(self) -> None:
         try:
-            self.tile_dims_container._max_ndims = self.layer_select.value.ndim
+            # self.tile_dims_container._max_ndims = self.layer_select.value.ndim
+            ...
         except AttributeError:
             pass
 
