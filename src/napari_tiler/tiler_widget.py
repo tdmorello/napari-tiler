@@ -65,6 +65,10 @@ class TilerWidget(QWidget):
         self.overlap_dsb = QDoubleSpinBox()
         self.overlap_dsb.setValue(DEFAULTS.overlap)
         self.overlap_dsb.setStepType(QAbstractSpinBox.AdaptiveDecimalStepType)
+        # NOTE: `editingFinished` could be useful to prevent updating while
+        # still entering input
+        # self.overlap_dsb.editingFinished.connect(self._validate_overlap_value)
+        # self.overlap_dsb.editingFinished.connect(self._parameters_changed)
         self.overlap_dsb.valueChanged.connect(self._validate_overlap_value)
         self.overlap_dsb.valueChanged.connect(self._parameters_changed)
 
@@ -172,8 +176,6 @@ class TilerWidget(QWidget):
         metadata = self._initialize_tiler()
         tiler = self._tiler
         image = self.image_select.value
-        # move parameters to class?
-        tile_shape = metadata["tile_shape"]
         is_rgb = image.rgb
 
         tiles_stack = tiler.get_all_tiles(image.data).astype(image.dtype)
