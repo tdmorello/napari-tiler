@@ -5,7 +5,7 @@ import tempfile
 import nox
 from nox.sessions import Session
 
-python_versions = ["3.7", "3.8", "3.9", "3.10"]
+python_versions = ["3.10", "3.11", "3.12"]
 
 
 @nox.session(python=python_versions)
