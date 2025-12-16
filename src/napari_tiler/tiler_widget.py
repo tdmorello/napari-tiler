@@ -2,18 +2,13 @@
 
 import logging
 import math
-from typing import TYPE_CHECKING, Dict, Optional
-
 import pathlib
-from warnings import showwarning
-
 import numpy as np
 import tifffile
+from typing import TYPE_CHECKING, Dict, Optional
 from napari.qt.threading import create_worker
 from napari.layers import Image
 from magicgui.widgets import create_widget
-from napari_tools_menu import register_dock_widget
-from numba.cpython.unsafe.numbers import leading_zeros
 from qtpy.QtCore import QEvent, Signal
 from qtpy.QtWidgets import (
     QAbstractSpinBox,
@@ -47,7 +42,6 @@ class DEFAULTS:
     overlap = 0.1
 
 
-@register_dock_widget(menu="Utilities > Tiler")
 class TilerWidget(QWidget):
     """The main Tiler widget."""
 

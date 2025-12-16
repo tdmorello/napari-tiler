@@ -6,7 +6,7 @@ import napari_tiler
 # this is your plugin name declared in your napari.plugins entry point
 MY_PLUGIN_NAME = "napari-tiler"
 # the name of your widget(s)
-MY_WIDGET_NAMES = ["Tiler Widget", "Merger Widget"]
+MY_WIDGET_NAMES = ["Tiler", "Merger"]
 
 
 sample_image_data = [
@@ -22,11 +22,11 @@ def test_load_widgets(widget_name, make_napari_viewer, napari_plugin_manager):
     """Test that napari loads the widget through the plugin manager."""
     napari_plugin_manager.register(napari_tiler, name=MY_PLUGIN_NAME)
     viewer = make_napari_viewer()
-    num_dw = len(viewer.window._dock_widgets)
+    num_dw = len(viewer.window.dock_widgets)
     viewer.window.add_plugin_dock_widget(
         plugin_name=MY_PLUGIN_NAME, widget_name=widget_name
     )
-    assert len(viewer.window._dock_widgets) == num_dw + 1
+    assert len(viewer.window.dock_widgets) == num_dw + 1
 
 
 def test_tiler_widget_no_image(make_napari_viewer):
