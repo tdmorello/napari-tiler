@@ -27,7 +27,7 @@ def test_load_widgets(make_napari_viewer):
         merger
     )
     assert len(viewer.window.dock_widgets) == num_dw + 1
-    
+
 
 def test_tiler_widget_no_image(make_napari_viewer):
     """Test error raised when no image is loaded."""
