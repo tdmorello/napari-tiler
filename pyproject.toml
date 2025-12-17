@@ -28,7 +28,7 @@ classifiers = [
 "User Support" = "https://github.com/tdmorello/napari-tiler/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.10, <=3.12"
+python = ">=3.10, <3.13"
 importlib-metadata = {version = "<4.3", markers = "python_version < '3.8'"}
 numpy = "^1.21.4"
 tiler = "^0.6.0"
