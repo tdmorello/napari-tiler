@@ -12,11 +12,6 @@ sample_image_data = [
 ]
 
 
-def test_simple():
-    assert True
-
-
-'''
 def test_load_widgets(make_napari_viewer):
     """Test that napari loads the widget through the plugin manager."""
     viewer = make_napari_viewer()
@@ -166,4 +161,3 @@ def test_merger_widget_default_parameters(image_data, rgb, make_napari_viewer):
     # merged layer is same as original
     merged_image_data = viewer.layers[-1].data
     np.testing.assert_almost_equal(image_data, merged_image_data)
-'''
