@@ -13,7 +13,7 @@ def tests(session: Session) -> None:
     """Run the test suite."""
     _install_via_pip(session)
 
-    session.install("napari[all]", "pytest>=7.0", "pytest-cov", "pytest-qt")
+    session.install("napari[all]", "pytest>=7.0", "pytest-cov>=4.1.0", "pytest-qt")
     if sys.platform == "linux":
         session.install("pytest-xvfb")
 
