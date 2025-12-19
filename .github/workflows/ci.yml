@@ -73,8 +73,6 @@ jobs:
           poetry build
 
     - name: Release on TestPyPI
-      env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_TOKEN  }}
-      run: |
-          twine upload --repository testpypi dist/*
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
