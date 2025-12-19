@@ -69,7 +69,7 @@ jobs:
       run: |
           poetry version patch &&
           version=$(poetry version | awk '{ print $2 }') &&
-          poetry version $version.dev.$(date +%s) &&
+          poetry version $version
           poetry build
 
     - name: Release on TestPyPI
