@@ -15,8 +15,6 @@ sample_image_data = [
 def test_load_widgets(make_napari_viewer):
     """Test that napari loads the widget through the plugin manager."""
     viewer = make_napari_viewer()
-    assert True
-    '''
     tiler = TilerWidget(viewer)
     merger = MergerWidget(viewer)
     num_dw = len(viewer.window.dock_widgets)
@@ -29,9 +27,9 @@ def test_load_widgets(make_napari_viewer):
         merger
     )
     assert len(viewer.window.dock_widgets) == num_dw + 1
-    '''
 
-'''
+
+
 def test_tiler_widget_no_image(make_napari_viewer):
     """Test error raised when no image is loaded."""
     viewer = make_napari_viewer()
@@ -164,4 +162,4 @@ def test_merger_widget_default_parameters(image_data, rgb, make_napari_viewer):
     # merged layer is same as original
     merged_image_data = viewer.layers[-1].data
     np.testing.assert_almost_equal(image_data, merged_image_data)
-'''
+
