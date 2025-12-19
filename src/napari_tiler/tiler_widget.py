@@ -1,11 +1,14 @@
 """This provides the widget to make tiles."""
 
 import logging
-from typing import TYPE_CHECKING, Dict, Optional
-
+import math
+import pathlib
 import numpy as np
+import tifffile
+from typing import TYPE_CHECKING, Dict, Optional
+from napari.qt.threading import create_worker
+from napari.layers import Image
 from magicgui.widgets import create_widget
-from napari_tools_menu import register_dock_widget
 from qtpy.QtCore import QEvent, Signal
 from qtpy.QtWidgets import (
     QAbstractSpinBox,
@@ -15,10 +18,12 @@ from qtpy.QtWidgets import (
     QFormLayout,
     QHBoxLayout,
     QLabel,
+    QLineEdit,
     QPushButton,
     QSpinBox,
     QVBoxLayout,
     QWidget,
+    QFileDialog,
 )
 from tiler import Tiler
 
@@ -37,7 +42,6 @@ class DEFAULTS:
     overlap = 0.1
 
 
-@register_dock_widget(menu="Utilities > Tiler")
 class TilerWidget(QWidget):
     """The main Tiler widget."""
 
@@ -108,6 +112,31 @@ class TilerWidget(QWidget):
         self.run_btn.clicked.connect(self._run)
         self.layout().addWidget(self.run_btn)
 
+        # Batch Processing
+        self.default_input_folder = str(pathlib.Path.home())
+        self.default_output_folder = str(pathlib.Path.home())
+        batch_form_layout = QFormLayout()
+        input_folder_layout = QHBoxLayout()
+        output_folder_layout = QHBoxLayout()
+        self.input_folder_input = QLineEdit()
+        self.input_folder_input.setText(str(self.default_input_folder))
+        browse_input_button = QPushButton("Browse")
+        browse_input_button.clicked.connect(self._browse_input)
+        self.output_folder_input = QLineEdit()
+        self.output_folder_input.setText(str(self.default_output_folder))
+        browse_output_button = QPushButton("Browse")
+        browse_output_button.clicked.connect(self._browse_output)
+        input_folder_layout.addWidget(self.input_folder_input)
+        input_folder_layout.addWidget(browse_input_button)
+        output_folder_layout.addWidget(self.output_folder_input)
+        output_folder_layout.addWidget(browse_output_button)
+        batch_form_layout.addRow("Input Folder", input_folder_layout)
+        batch_form_layout.addRow("Output Folder", output_folder_layout)
+        self.layout().addLayout(batch_form_layout)
+        run_batch_btn = QPushButton("Run Batch")
+        run_batch_btn.clicked.connect(self._run_batch)
+        self.layout().addWidget(run_batch_btn)
+
         # initial show or hide constant input spinbox
         self._on_mode_changed()
         self._parameters_changed()
@@ -131,7 +160,9 @@ class TilerWidget(QWidget):
         image = self.image_select.value  # NOTE add if not none?
         if image is None:
             raise ValueError("No image data available.")
+        return self._do_initialize_tiler(image)
 
+    def _do_initialize_tiler(self, image) -> Dict:
         data_shape = np.array(image.data.shape)
         tile_shape = self.tile_shape
         mode = self.mode_select.currentText()
@@ -188,6 +219,53 @@ class TilerWidget(QWidget):
             colormap=image.colormap,
         )
 
+    def _browse_input(self) -> None:
+
+        input_folder_from_user = QFileDialog.getExistingDirectory(self, "Input Folder",
+                                                                  self.input_folder_input.text(),
+                                                                  QFileDialog.ShowDirsOnly)
+        if input_folder_from_user:
+            self.input_folder_input.setText(input_folder_from_user)
+
+    def _browse_output(self) -> None:
+        output_folder_from_user = QFileDialog.getExistingDirectory(self, "Output Folder",
+                                                                  self.output_folder_input.text(),
+                                                                  QFileDialog.ShowDirsOnly)
+        if output_folder_from_user:
+            self.output_folder_input.setText(output_folder_from_user)
+
+    def _run_batch(self) -> None:
+        input_folder = pathlib.Path(self.input_folder_input.text())
+        input_dir = pathlib.Path(input_folder)
+        files = list(input_dir.iterdir())
+        images = [item for item in files if item.is_file() and item.suffix.lower() in ['.tif', '.tiff']]
+        worker = create_worker(self._batch,
+                               _progress={'total': len(images), 'desc': 'Batch tiling images...'})
+        worker.start()
+
+    def _batch(self) -> None:
+        input_folder = pathlib.Path(self.input_folder_input.text())
+        output_folder = pathlib.Path(self.output_folder_input.text())
+        if not input_folder.exists() or not output_folder.exists():
+            print("Folder does not exist!")
+            return
+        input_dir = pathlib.Path(input_folder)
+        output_dir = pathlib.Path(output_folder)
+        for item in input_dir.iterdir():
+            if not item.is_file() or not item.suffix.lower() in ['.tif', '.tiff']:
+                continue
+            input_image = tifffile.imread(item)
+            layer = Image(input_image)
+            self._do_initialize_tiler(layer)
+            tiler = self._tiler
+            tiles_stack = tiler.get_all_tiles(layer.data).astype(layer.dtype)
+            length = tiles_stack.shape[0]
+            nr_of_zeros = int(math.ceil(math.log10(length)))
+            for counter in range(length):
+                path = output_dir.joinpath(item.stem + "_" +str(counter).zfill(nr_of_zeros) + item.suffix)
+                tifffile.imwrite(path, tiles_stack[counter-1])
+            yield
+
     def _parameters_changed(self) -> None:
         # TODO wait until user has completed input, otherwise this is costly
         if self.preview_chkb.isChecked():
@@ -225,11 +303,10 @@ class TilerWidget(QWidget):
             edge_color="white",
             face_color="#ffffff20",
         )
-
         # move preview layer to front
         layers = self.viewer.layers
         idx = layers.index(self._preview_layer)
-        layers.move_selected(idx, -1)
+        layers.move_multiple([idx], -1)
 
     def _remove_preview_layer(self) -> None:
         if "tiler preview" in self.viewer.layers:

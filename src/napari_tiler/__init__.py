@@ -17,4 +17,13 @@ except PackageNotFoundError:  # pragma: no cover
     __version__ = "unknown"
 
 
-from ._dock_widget import napari_experimental_provide_dock_widget  # noqa: F401
+from .tiler_widget import TilerWidget
+from .merger_widget import MergerWidget
+
+
+__all__ = (
+    "__version__",
+    "TilerWidget",
+    "MergerWidget",
+)
+

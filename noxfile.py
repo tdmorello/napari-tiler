@@ -5,7 +5,7 @@ import tempfile
 import nox
 from nox.sessions import Session
 
-python_versions = ["3.7", "3.8", "3.9", "3.10"]
+python_versions = ["3.10", "3.11", "3.12"]
 
 
 @nox.session(python=python_versions)
@@ -13,7 +13,7 @@ def tests(session: Session) -> None:
     """Run the test suite."""
     _install_via_pip(session)
 
-    session.install("napari[all]", "pytest", "pytest-cov", "pytest-qt")
+    session.install("napari[all]", "pytest>=7.0", "pytest-cov>=4.1.0", "pytest-qt>=4.5.0")
     if sys.platform == "linux":
         session.install("pytest-xvfb")
 

@@ -1,0 +1,25 @@
+name: napari-tiler
+display_name: Napari Tiler
+schema_version: 0.2.1
+contributions:
+  commands:
+    - id: napari-tiler.tiler
+      python_name: napari_tiler:TilerWidget
+      title: Tiler
+    - id: napari-tiler.merger
+      python_name: napari_tiler:MergerWidget
+      title: Merger
+  widgets:
+    - command: napari-tiler.tiler
+      display_name: Tiler
+    - command: napari-tiler.merger
+      display_name: Merger
+  menus:
+    napari/layers/data:
+      - submenu: tiling
+    tiling:
+        - command: napari-tiler.tiler
+        - command: napari-tiler.merger
+  submenus:
+    - id: tiling
+      label: Tiling

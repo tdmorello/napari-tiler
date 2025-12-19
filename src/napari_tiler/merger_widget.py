@@ -2,7 +2,6 @@
 from typing import TYPE_CHECKING, Optional
 
 from magicgui.widgets import create_widget
-from napari_tools_menu import register_dock_widget
 from qtpy.QtCore import QEvent
 from qtpy.QtWidgets import (
     QComboBox,
@@ -18,7 +17,6 @@ if TYPE_CHECKING:
     import napari  # pragma: no cover
 
 
-@register_dock_widget(menu="Utilities > Merger")
 class MergerWidget(QWidget):
     """A class for the Merger widget."""
 

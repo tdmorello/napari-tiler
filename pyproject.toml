@@ -14,12 +14,12 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.7",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Testing",
 ]
+
 
 [tool.poetry.urls]
 "Bug Tracker" = "https://github.com/tdmorello/napari-tiler/issues"
@@ -28,46 +28,62 @@ classifiers = [
 "User Support" = "https://github.com/tdmorello/napari-tiler/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.7, <3.11"
+python = ">=3.10, <3.13"
 importlib-metadata = {version = "<4.3", markers = "python_version < '3.8'"}
-napari-plugin-engine = "^0.2.0"
 numpy = "^1.21.4"
-tiler = "^0.5.0"
-napari-tools-menu = "^0.1.9"
+tiler = "^0.6.0"
 
 [tool.poetry.dev-dependencies]
 black = "^21.12b0"
-coverage = {version = "^6.2", extras = ["toml"]}
+coverage = {version = "^7.6", extras = ["toml"]}
 flake8 = "^4.0.1"
 # flake8-annotations = "^2.7.0"
 flake8-black = "^0.2.3"
 flake8-docstrings = "^1.6.0"
 flake8-isort = "^4.1.1"
 mypy = "^0.920"
-napari = {version = "^0.4.12", extras = ["all"]}
+napari = {version = "^0.6.0", extras = ["all"]}
 nox = "^2021.10.1"
-pytest = "^6.2.5"
-pytest-cov = "^3.0.0"
+pytest = "^7.0.0"
+pytest-cov = "^4.1.0"
 pytest-faulthandler =  "^2.0.1"
 pytest-order = "^1.0.0"
-pytest-qt = "^4.0.2"
+pytest-qt = "^4.5.0"
 pytest-timeout = "^2.0.2"
 pytest-xvfb = {version = "^2.0.0", markers = "sys_platform == 'linux'"}
 rope = "^0.22.0"
 
-[tool.poetry.plugins]
-
-[tool.poetry.plugins."napari.plugin"]
-"napari-tiler" = "napari_tiler"
+[poetry.group.dev.dependencies]
+black = "^21.12b0"
+coverage = {version = "^7.6", extras = ["toml"]}
+flake8 = "^4.0.1"
+# flake8-annotations = "^2.7.0"
+flake8-black = "^0.2.3"
+flake8-docstrings = "^1.6.0"
+flake8-isort = "^4.1.1"
+mypy = "^0.920"
+napari = {version = "^0.6.0", extras = ["all"]}
+nox = "^2021.10.1"
+pytest = "^7.0.0"
+pytest-cov = "^4.1.0"
+pytest-faulthandler =  "^2.0.1"
+pytest-order = "^1.0.0"
+pytest-qt = "^4.5.0"
+pytest-timeout = "^2.0.2"
+pytest-xvfb = {version = "^2.0.0", markers = "sys_platform == 'linux'"}
+rope = "^0.22.0"
 
 [tool.poetry.extras]
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core>=1.0.0", "poetry_plugin_export_packages", "poetry-plugin-export "]
 build-backend = "poetry.core.masonry.api"
 
+[tool.poetry.plugins."napari.manifest"]
+napari-tiler = "napari_tiler:napari.yaml"
+
 [tool.black]
-target-version = ['py36', 'py37', 'py38', 'py39', 'py310']
+target-version = ['py310', 'py311', 'py312']
 line-length = 79
 
 [tool.isort]
