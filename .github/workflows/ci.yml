@@ -53,6 +53,9 @@ jobs:
   deploy:
     needs: [test]
     runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://test.pypi.org/p/napari-tiler/
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python 3.10
