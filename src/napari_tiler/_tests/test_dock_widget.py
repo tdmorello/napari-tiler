@@ -12,9 +12,9 @@ sample_image_data = [
 ]
 
 
-def test_load_widgets():
+def test_load_widgets(make_napari_viewer):
     """Test that napari loads the widget through the plugin manager."""
-    # viewer = make_napari_viewer()
+    viewer = make_napari_viewer()
     assert True
     '''
     tiler = TilerWidget(viewer)
